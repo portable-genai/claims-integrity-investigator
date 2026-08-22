@@ -1,0 +1,9 @@
+# Golden claim cases (obviously fictional). The oracle is written from the fixtures BY HAND, never
+# read back from the pipeline: expected_recommendation, expected_indemnity_cents and expected_flags
+# are the independently hand-computed answers, so a metric scored against them cannot be satisfied
+# by the pipeline agreeing with itself. `planted` is the synthetic NRIC in that claim's file; the
+# redact-before-model-and-write step must mask it, so pii_safety goes red if it survives.
+{"id": "g1", "claim_id": "CLM-1001", "expected_recommendation": "accept", "expected_indemnity_cents": 485000, "expected_flags": [], "planted": "S1234567D"}
+{"id": "g2", "claim_id": "CLM-1002", "expected_recommendation": "decline", "expected_indemnity_cents": 0, "expected_flags": [], "planted": "S7654321A"}
+{"id": "g3", "claim_id": "CLM-1003", "expected_recommendation": "investigate", "expected_indemnity_cents": 343800, "expected_flags": ["late_notification", "staged_loss"], "planted": "S2223334B"}
+{"id": "g4", "claim_id": "CLM-1004", "expected_recommendation": "siu_refer", "expected_indemnity_cents": 1950000, "expected_flags": ["invoice_anomaly", "organised_fraud_link"], "planted": "S9998887C"}
