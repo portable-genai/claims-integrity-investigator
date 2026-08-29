@@ -75,7 +75,7 @@ No literal secret material. `config/settings.yaml` carries only `${VAR:-default}
 tokens; `.env.example` documents non-secret variable names; `.env.secrets.example` documents the
 secret NAMES with placeholder values. Inbound and outbound credentials are deliberately distinct
 variables: this service's own inbound `CLAIMSINTEG_S2S_TOKEN` against the outbound
-`HRZ7_S2S_TOKEN` / `HRZ7_S2S_SIGNING_KEY` the review client uses. Every security-relevant
+`HUMAN_REVIEW_S2S_TOKEN` / `HUMAN_REVIEW_S2S_SIGNING_KEY` the review client uses. Every security-relevant
 environment read resolves three states, and `tests/unit/test_three_state_env_reads.py` walks the
 AST of `src/`, `scripts/` and `eval/` and fails the build on any two-state read that ships.
 

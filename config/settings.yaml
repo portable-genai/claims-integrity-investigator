@@ -41,15 +41,15 @@ iap_audience: ${CLAIMSINTEG_IAP_AUDIENCE:-}
 
 # Rule R8: where an escalated result is routed for human review. The managed profile REFUSES to
 # swallow an escalation when this is empty, so a producer cannot ship with R8 unwired.
-# The outbound S2S credentials are HRZ7_S2S_TOKEN / HRZ7_S2S_SIGNING_KEY (see .env.secrets.example),
+# The outbound S2S credentials are HUMAN_REVIEW_S2S_TOKEN / HUMAN_REVIEW_S2S_SIGNING_KEY (see .env.secrets.example),
 # deliberately distinct from this service's own inbound CLAIMSINTEG_S2S_TOKEN.
-review_url: ${HRZ_HUMAN_REVIEW_URL:-}
+review_url: ${HUMAN_REVIEW_URL:-}
 
-# The Hrz2 governed-RAG service the managed policy-corpus adapter retrieves policy wording from.
+# The Governed-RAG service the managed policy-corpus adapter retrieves policy wording from.
 # Hrz2 is a HARD row dependency: an unset/empty endpoint makes the governed-retrieval adapter
 # REFUSE rather than fall back to an ungoverned file search. Empty is correct offline (the local
 # fixture corpus stands in) and wrong for a managed deployment, which must name the Hrz2 URL.
-hrz2_endpoint: ${CLAIMSINTEG_HRZ2_URL:-}
+knowledge_base_endpoint: ${CLAIMSINTEG_KNOWLEDGE_BASE_URL:-}
 
 # The adopter-owned assessment policy: the fraud-indicator uplifts, the fraud-score bands and the
 # late-notification / velocity / round-amount thresholds. These are the CLIENT's numbers, so they

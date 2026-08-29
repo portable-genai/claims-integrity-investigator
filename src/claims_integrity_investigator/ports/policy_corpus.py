@@ -1,8 +1,8 @@
 """PolicyCorpusPort: governed policy-wording retrieval through Hrz2 (the mandated dependency).
 
-This is the Hrz2 governed-RAG ``RetrievalPort`` shape (``retrieve(RetrievalQuery)`` returning
+This is the Governed-RAG ``RetrievalPort`` shape (``retrieve(RetrievalQuery)`` returning
 cited passages), NOT a generic file search: Ins1's row makes Hrz2 a hard dependency, so the
-managed adapter calls the Hrz2 governed-RAG service (whose managed backend is Gemini API File
+managed adapter calls the Governed-RAG service (whose managed backend is Gemini API File
 Search) rather than reaching a search index directly. Retrieval grounds the coverage clauses and
 the drafted narrative; when it returns nothing, the coverage engine refuses rather than guesses.
 
