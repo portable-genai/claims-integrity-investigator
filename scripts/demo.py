@@ -115,7 +115,7 @@ STEPS: tuple[Step, ...] = (
         narration=(
             "The whole stack is bound from one settings file: no cloud project, no credentials, "
             "no SDK. Every port has an offline implementation, which is why this demo and the "
-            "gate both run on a plane. Policy wording is retrieved through the Hrz2 governed-RAG "
+            "gate both run on a plane. Policy wording is retrieved through the Governed-RAG "
             "port; offline, a fixture corpus stands in for it."
         ),
     ),
@@ -311,7 +311,7 @@ class DemoRun:
                 Row("Profiles bound for every port", ", ".join(profiles)),
                 Row("Residency region", self.settings.region),
                 Row("Jurisdiction PII packs", ", ".join(JURISDICTIONS)),
-                Row("Policy-wording retrieval", "Hrz2 governed-RAG (fixture corpus offline)"),
+                Row("Policy-wording retrieval", "Governed-RAG (fixture corpus offline)"),
             ),
             note=(
                 "One environment variable selects the adapter family for every port. Nothing "
@@ -413,7 +413,7 @@ class DemoRun:
             title="Next actions",
             rows=(
                 Row("Reviewer", "open the queued item and approve, decline or refer to SIU"),
-                Row("Operator", "point HRZ_HUMAN_REVIEW_URL at the console and flush the outbox"),
+                Row("Operator", "point HUMAN_REVIEW_URL at the console and flush the outbox"),
             ),
         )
         return [queue, findings, actions], {"pending": len(pending), "wire_leak": leaked}

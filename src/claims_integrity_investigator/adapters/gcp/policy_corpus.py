@@ -1,4 +1,4 @@
-"""Managed PolicyCorpusPort: the Hrz2 governed-RAG retrieval service (the mandated dependency).
+"""Managed PolicyCorpusPort: the Governed-RAG retrieval service (the mandated dependency).
 
 Ins1's row makes Hrz2 a hard dependency, so policy wording is retrieved through the Hrz2
 governed-RAG service (its managed backend is Gemini API File Search) rather than a generic file
@@ -15,21 +15,21 @@ from ...domain.models import RetrievalQuery, RetrievedPassage
 
 
 class Hrz2PolicyCorpusAdapter:
-    """Retrieve governed policy wording from the Hrz2 governed-RAG service."""
+    """Retrieve governed policy wording from the Governed-RAG service."""
 
     def __init__(self, settings: Settings) -> None:
         self._settings = settings
-        self._endpoint = settings.hrz2_endpoint
+        self._endpoint = settings.knowledge_base_endpoint
 
     def retrieve(self, query: RetrievalQuery) -> list[RetrievedPassage]:
         if not self._endpoint:
             raise RuntimeError(
-                "Hrz2 governed-RAG endpoint is unconfigured (CLAIMSINTEG_HRZ2_URL); governed "
+                "Governed-RAG endpoint is unconfigured (CLAIMSINTEG_KNOWLEDGE_BASE_URL); governed "
                 "policy-wording retrieval refuses rather than falling back to an ungoverned "
                 "search"
             )
         import httpx  # noqa: F401 - lazy; the governed call is deploy-time
 
         raise NotImplementedError(
-            "managed Hrz2 governed-RAG retrieval is deploy-time; wire the S2S call to Hrz2"
+            "managed Governed-RAG retrieval is deploy-time; wire the S2S call to Hrz2"
         )

@@ -26,7 +26,7 @@ state:
   actually enqueues. This is the dev, test, CI and demo default, and the working proof the
   domain runs entirely off-cloud.
 - **`gcp`** is the managed stack (Cloud Logging WORM, IAP identity, Cloud Trace or OTLP to the
-  Hrz5 collector, the Hrz2 governed-RAG retrieval, the Hrz7 review intake, the Hrz4 promotion
+  Hrz5 collector, the Governed-RAG retrieval, the Hrz7 review intake, the Hrz4 promotion
   client), with every SDK import lazy so the other profiles import with nothing installed.
 - **`onprem`** is fail-fast placeholders that satisfy the same Protocols and raise
   `NotImplementedError`, naming the migration target. They prove the ports are honest exit seams

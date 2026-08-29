@@ -73,7 +73,7 @@ cross-cutting concerns owned by sibling systems. Do not rebuild these in a fork:
 
 | Concern | Owned by (catalog id / repo) | Ins1's role |
 |---|---|---|
-| Governed RAG over the insurer's policy wordings, with ACLs and citations | **Hrz2** `enterprise-knowledge-base` | a HARD dependency: retrieval goes through the Hrz2 governed-RAG service (`ports/policy_corpus.py`), which REFUSES when unconfigured rather than falling back to an ungoverned search |
+| Governed RAG over the insurer's policy wordings, with ACLs and citations | **Hrz2** `enterprise-knowledge-base` | a HARD dependency: retrieval goes through the Governed-RAG service (`ports/policy_corpus.py`), which REFUSES when unconfigured rather than falling back to an ungoverned search |
 | Runtime guardrail: prompt-injection and jailbreak defence, output screening | **Hrz1** `agent-guardrail-gateway` | a mandated dependency this repo has NOT yet bound (the R1 row in `COMPLIANCE.md` says so). In-repo redaction is in place; screening belongs behind a `GuardrailPort` |
 | Agent registry, versioning, identity, entitlements | **Hrz3** `agent-registry` | publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds |
 | AI-quality / eval / model-risk promotion gate | **Hrz4** `model-quality-gate` | owns promotion under the bundle id `claims-integrity-investigator`; the offline gate mirrors its thresholds |

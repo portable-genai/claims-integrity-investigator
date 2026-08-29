@@ -1,4 +1,4 @@
-"""Local PolicyCorpusPort: the offline stand-in for the Hrz2 governed-RAG retrieval.
+"""Local PolicyCorpusPort: the offline stand-in for the Governed-RAG retrieval.
 
 There is no Hrz2 emulator, so the local profile serves policy wording from an in-repo fixture
 corpus keyed by policy reference. It returns the same :class:`RetrievedPassage` objects with

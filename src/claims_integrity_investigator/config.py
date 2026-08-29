@@ -416,10 +416,10 @@ class Settings:
     #: a trace resource path. Empty is valid: on Cloud Run the exporter resolves it
     #: from the metadata server.
     project_id: str = ""
-    #: Base URL of the Hrz2 governed-RAG service the managed policy-corpus adapter calls. Empty
+    #: Base URL of the Governed-RAG service the managed policy-corpus adapter calls. Empty
     #: means unconfigured, and the governed-retrieval adapter REFUSES rather than reaching an
     #: ungoverned search: Hrz2 is a hard row dependency, not an optimisation.
-    hrz2_endpoint: str = ""
+    knowledge_base_endpoint: str = ""
     #: The adopter-owned assessment thresholds and weights (the ``policy:`` block). Frozen, so an
     #: engine cannot mutate it, and stamped with an ``as_of`` so a figure records its policy.
     policy: AssessmentPolicy = field(default_factory=AssessmentPolicy)
@@ -454,7 +454,7 @@ class Settings:
             iap_audience=str(data.get("iap_audience") or ""),
             tenant=str(data.get("tenant") or ""),
             project_id=str(data.get("project_id") or ""),
-            hrz2_endpoint=str(data.get("hrz2_endpoint") or ""),
+            knowledge_base_endpoint=str(data.get("knowledge_base_endpoint") or ""),
             policy=_policy_from(data.get("policy")),
             adapters=_bindings_from(data),
         )

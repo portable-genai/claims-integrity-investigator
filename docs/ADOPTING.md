@@ -174,8 +174,8 @@ are owned by sibling platform services; integrate rather than rebuild them. The 
 really has:
 
 - **Hrz2** governed knowledge base: a HARD dependency. Policy wording is retrieved through the
-  Hrz2 governed-RAG service (`adapters/gcp/policy_corpus.py:Hrz2PolicyCorpusAdapter`, endpoint
-  `CLAIMSINTEG_HRZ2_URL` / `hrz2_endpoint`), which REFUSES when unconfigured rather than falling
+  Governed-RAG service (`adapters/gcp/policy_corpus.py:Hrz2PolicyCorpusAdapter`, endpoint
+  `CLAIMSINTEG_KNOWLEDGE_BASE_URL` / `knowledge_base_endpoint`), which REFUSES when unconfigured rather than falling
   back to an ungoverned search. Do not build a second retrieval path.
 - **Hrz3** agent registry: this agent publishes its A2A card at
   `/.well-known/agent-card.json`, built from the same tool table the runtime binds
@@ -192,7 +192,7 @@ really has:
 - **Hrz7** human-review and maker-checker console: every assessment escalates, and rule R8 says
   it is ROUTED, not flagged. `ports/review_router.py` has an adapter in every profile and the
   API, the CLI and the agent tool all route in the same call that produced the result. You wire
-  your console endpoint (`HRZ_HUMAN_REVIEW_URL`); you do not re-implement the console.
+  your console endpoint (`HUMAN_REVIEW_URL`); you do not re-implement the console.
 - **G1 to G5**, the financial-crime suite (AML alert triage, sanctions screening, scam and APP
   interdiction, account-takeover investigation, SOC fraud fusion): consumed as a DATA FEED
   through `ports/fraud_linkage.py`. The organised-fraud signal arrives as raw linkage and the
