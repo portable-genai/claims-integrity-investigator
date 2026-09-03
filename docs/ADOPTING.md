@@ -50,7 +50,7 @@ Upstream keeps evolving these; avoid diverging from them so you can pull fixes c
   harness mechanics in `eval/run_eval.py`, the hexagon wiring in `config.py` (`Container`,
   `DEFAULT_BINDINGS`, `ProfileChoice`), the fail-closed API scaffolding in `api/app.py`, the
   managed-readiness preflight in `managed_readiness.py`, and the gate itself, which is the
-  hosted Cloud Build check rather than anything in this repository.
+  hosted GitHub Actions check rather than anything in this repository.
 - **Adopter-owned** (yours; expect to edit): the `policy:` *values* in `config/settings.yaml`,
   the two engines and the artifact models, `domain/pii.py:JURISDICTIONS`, the whole of
   `adapters/onprem/*`, the offline fixture corpus in `adapters/local/_fixtures.py`, the golden
