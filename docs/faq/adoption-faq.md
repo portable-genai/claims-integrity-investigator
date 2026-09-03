@@ -103,7 +103,7 @@ installed or needed. If you rewrite the arc, keep the pairing.
 
 ### Does CI run for my fork out of the box?
 
-Yes, and it needs no cloud credentials and no org secrets. the hosted Cloud Build check is a thin
+Yes, and it needs no cloud credentials and no org secrets. the hosted GitHub Actions check is a thin
 caller of the shared reusable hard-gate workflow pinned to a TAG (not a branch, so the meaning
 of the gate cannot change under you), running the offline gate on python 3.12 and 3.13 plus the
 eval. One extra job is worth knowing about: `iap-matrix-path` names
