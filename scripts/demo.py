@@ -9,12 +9,11 @@ Three properties make it worth running in front of somebody:
 
 * **Nothing is faked.** No engine stub, no pre-baked JSON. The coverage verdicts, the indemnity
   quantum, the fraud score, the audit records, the routing references and the tamper verdict are
-  produced by the shipped code.
-* **It is bounded.** The demo proves an offline, single-process seam. It does not prove
-  cross-host deployment, a live console, Hrz2 or the managed profile; those need a cloud project
-  and live in ``tests/integration/``.
-* **It is replayable.** Same inputs, same output, every time, because the consequential decision
-  is deterministic. That is what makes it safe to run live.
+  produced by the shipped code. * **It is bounded.** The demo proves an offline, single-process
+  seam. It does not prove cross-host deployment, a live console, enterprise-knowledge-base or the
+  managed profile; those need a cloud project and live in ``tests/integration/``. * **It is
+  replayable.** Same inputs, same output, every time, because the consequential decision is
+  deterministic. That is what makes it safe to run live.
 
 Every party, address and identifier here is obviously fictional: ``.example`` domains and a
 synthetic national id that exists only to prove redaction happened.
@@ -69,7 +68,7 @@ def loaded_cloud_sdks() -> tuple[str, ...]:
 
 #: Rendered identity, bound once so no other line's length depends on how long a name is.
 SERVICE_NAME = "Claims Integrity Investigator"
-CATALOG_ID = "Ins1"
+CATALOG_ID = "claims-integrity-investigator"
 REPOSITORY = "claims-integrity-investigator"
 
 # --------------------------------------------------------------------------------------- #
@@ -306,7 +305,6 @@ class DemoRun:
             title="Deployment",
             rows=(
                 Row("Service", SERVICE_NAME),
-                Row("Catalog id", CATALOG_ID),
                 Row("Profile", self.settings.profile, "ok"),
                 Row("Profiles bound for every port", ", ".join(profiles)),
                 Row("Residency region", self.settings.region),
@@ -646,7 +644,6 @@ class DemoRun:
         current = self.results[-1]
         return {
             "service": SERVICE_NAME,
-            "catalog_id": CATALOG_ID,
             "repository": REPOSITORY,
             "profile": self.settings.profile,
             "region": self.settings.region,

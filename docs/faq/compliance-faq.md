@@ -1,6 +1,6 @@
 # Compliance FAQ
 
-For compliance, model-risk and privacy teams assessing Ins1's regulatory posture.
+For compliance, model-risk and privacy teams assessing `claims-integrity-investigator`'s regulatory posture.
 Cross-references: [`../../COMPLIANCE.md`](../../COMPLIANCE.md) (the full principle and rule map
 with an Evidence column, plus the adopter-owned crosswalk), [`../../SPEC.md`](../../SPEC.md),
 [`../model-card.md`](../model-card.md).
@@ -9,7 +9,7 @@ with an Evidence column, plus the adopter-owned crosswalk), [`../../SPEC.md`](..
 
 No. It is a **decision-support** service. Every assessment, including a clean accept, sets
 `requires_human_review=True` and carries `Decision.ESCALATED`, and the escalation is ROUTED to
-the **Hrz7** Human-Review and Maker-Checker Console in the same call that produced it (rule R8),
+the `human-review-console` in the same call that produced it (rule R8),
 never terminated in a local boolean. The API, the CLI and the agent tool all route before
 returning, and the response carries a `review_ref` so a caller can distinguish a routed
 escalation from one that stopped locally. An SIU-refer maps to CRITICAL, which the outbound
@@ -45,7 +45,7 @@ STRUCTURAL attributes only, deliberately: a trace backend has no redaction stage
 audience and no retention rule written against a regulator's requirement, so no claim id,
 claimant, file text or narrative reaches one.
 
-The runtime guardrail and DLP gateway itself is the sibling **Hrz1** system, and this repo has
+The runtime guardrail and DLP gateway itself is the sibling `agent-guardrail-gateway` system, and this repo has
 NOT yet bound a `GuardrailPort` to it. The R1 row in `../../COMPLIANCE.md` states that plainly
 rather than claiming coverage; treat prompt-injection screening as an open dependency, not a
 shipped control.
@@ -61,7 +61,7 @@ writes the chain head to a file on a different volume and once store and anchor 
 service refuses to append rather than re-anchoring. `tests/unit/test_audit_anchor.py` proves
 both halves including the control case. That is the offline stand-in. Production retention is
 the locked Cloud Logging WORM bucket (`infra/terraform/logging_worm.tf`, 180-day floor,
-irreversible lock) and the enterprise sink is **Hrz5**. The retention schedule and the legal
+irreversible lock) and the enterprise sink is `agent-observability`. The retention schedule and the legal
 basis for the trail are adopter-owned.
 
 ### What is the model-risk story?
@@ -75,10 +75,10 @@ able to go RED before it is trusted (`assert_each_can_go_red`): a metric that ca
 a wrong answer from a right one is not a metric, and `pii_safety` additionally uses a
 pack-independent planted-literal oracle so it fires even if a pattern row is broken.
 
-`--mode gate` is the promotion authority and delegates the verdict to the sibling **Hrz4**
+`--mode gate` is the promotion authority and delegates the verdict to the sibling `model-quality-gate`
 AI-quality and model-risk platform under the bundle id `claims-integrity-investigator`,
 refusing to run off the managed profile. Two caveats a model-risk reviewer should record:
-registering that bundle with Hrz4 is still open (the P-08 and R5 rows), and the offline eval
+registering that bundle with `model-quality-gate` is still open (the P-08 and R5 rows), and the offline eval
 scores the deterministic offline generator, not a live model, so it is evidence about the
 engines rather than about a hosted model. See [`../model-card.md`](../model-card.md).
 

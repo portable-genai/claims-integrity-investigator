@@ -1,11 +1,11 @@
 # Features FAQ
 
 For claims, SIU, product and delivery teams: what this agent produces, what is deterministic vs
-what the model does, and, importantly, where Ins1's responsibilities **stop** and a sibling
+what the model does, and, importantly, where `claims-integrity-investigator`'s responsibilities **stop** and a sibling
 catalog system takes over. Cross-references: [`../../README.md`](../../README.md),
 [`../../DEMO.md`](../../DEMO.md), [`../../ARCHITECTURE.md`](../../ARCHITECTURE.md).
 
-### What does Ins1 actually produce?
+### What does `claims-integrity-investigator` actually produce?
 
 A cited **claim assessment**. From one claim id it fetches the claim file (FNOL, adjuster notes,
 invoices, the policy schedule), extracts structured evidence, retrieves the governing policy
@@ -49,7 +49,7 @@ behind it is exactly the unprovenanced decision the citation rule exists to prev
 
 No, and no. **Every** assessment sets `requires_human_review=True` and carries
 `Decision.ESCALATED`, including the clean accept case, and every surface routes it to the
-**Hrz7** Human-Review and Maker-Checker Console in the same call that produced it (rule R8): the
+`human-review-console` in the same call that produced it (rule R8): the
 API (`POST /v1/assess`), the CLI (`assess`) and the agent tool (`assess_claim`) all call
 `ReviewRouterPort.route` before returning, and the response carries a `review_ref` so a caller
 can tell a routed escalation from one that stopped locally. An SIU-refer maps to CRITICAL, which
@@ -68,42 +68,42 @@ shared sink. See [security-faq.md](security-faq.md) and [compliance-faq.md](comp
 
 ### Which capabilities does this repo own vs integrate from the catalog?
 
-Ins1 **owns** the claim-assessment domain logic and its outputs. It **integrates** several
+`claims-integrity-investigator` **owns** the claim-assessment domain logic and its outputs. It **integrates** several
 cross-cutting concerns owned by sibling systems. Do not rebuild these in a fork:
 
-| Concern | Owned by (catalog id / repo) | Ins1's role |
+| Concern | Owned by (catalog id / repo) | `claims-integrity-investigator`'s role |
 |---|---|---|
-| Governed RAG over the insurer's policy wordings, with ACLs and citations | **Hrz2** `enterprise-knowledge-base` | a HARD dependency: retrieval goes through the Governed-RAG service (`ports/policy_corpus.py`), which REFUSES when unconfigured rather than falling back to an ungoverned search |
-| Runtime guardrail: prompt-injection and jailbreak defence, output screening | **Hrz1** `agent-guardrail-gateway` | a mandated dependency this repo has NOT yet bound (the R1 row in `COMPLIANCE.md` says so). In-repo redaction is in place; screening belongs behind a `GuardrailPort` |
-| Agent registry, versioning, identity, entitlements | **Hrz3** `agent-registry` | publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds |
-| AI-quality / eval / model-risk promotion gate | **Hrz4** `model-quality-gate` | owns promotion under the bundle id `claims-integrity-investigator`; the offline gate mirrors its thresholds |
-| Observability, tracing, immutable WORM audit, FinOps | **Hrz5** `agent-observability` | writes audit events and exports structural-only spans to it; the in-repo hash chain is the offline stand-in |
-| Human review / maker-checker console | **Hrz7** `human-review-console` | routes every assessment's escalation to it (R8); it does not re-implement the console or its approval workflow |
+| Governed RAG over the insurer's policy wordings, with ACLs and citations | `enterprise-knowledge-base` | a HARD dependency: retrieval goes through the Governed-RAG service (`ports/policy_corpus.py`), which REFUSES when unconfigured rather than falling back to an ungoverned search |
+| Runtime guardrail: prompt-injection and jailbreak defence, output screening | `agent-guardrail-gateway` | a mandated dependency this repo has NOT yet bound (the R1 row in `COMPLIANCE.md` says so). In-repo redaction is in place; screening belongs behind a `GuardrailPort` |
+| Agent registry, versioning, identity, entitlements | `agent-registry` | publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds |
+| AI-quality / eval / model-risk promotion gate | `model-quality-gate` | owns promotion under the bundle id `claims-integrity-investigator`; the offline gate mirrors its thresholds |
+| Observability, tracing, immutable WORM audit, FinOps | `agent-observability` | writes audit events and exports structural-only spans to it; the in-repo hash chain is the offline stand-in |
+| Human review / maker-checker console | `human-review-console` | routes every assessment's escalation to it (R8); it does not re-implement the console or its approval workflow |
 | Organised-fraud ring detection and the signals behind it | **G1 to G5**, the financial-crime suite (`aml-alert-triage`, `sanctions-screening`, `app-fraud-interdiction`, `account-takeover-investigator`, `soc-fraud-fusion`) | consumes a linkage signal as a DATA FEED through `ports/fraud_linkage.py` and scores it; it does not detect rings |
-| Project-intake architecture and requirements validation | **Rsk3** `architecture-validator` | an intake action for the adopting project (rule R6), not a runtime call |
+| Project-intake architecture and requirements validation | `architecture-validator` | an intake action for the adopting project (rule R6), not a runtime call |
 
 So the guardrail, the knowledge base, the registry, the eval platform, the audit sink, the
 review console and the fraud-ring detection are *dependencies*, not features of this repo.
 
-### Where exactly does Ins1's responsibility end?
+### Where exactly does `claims-integrity-investigator`'s responsibility end?
 
-At the recommendation, handed to a named human. Ins1 does not pay or deny a claim, post or
+At the recommendation, handed to a named human. `claims-integrity-investigator` does not pay or deny a claim, post or
 release a reserve, notify or correspond with a claimant, open or work an SIU case file, refer a
 matter to a regulator or law enforcement, or price or renew a policy. It also does not decide
 who may see a claim: object-level authorisation over a queryable claim store is an open item
 (the Tenant isolation row in `COMPLIANCE.md`), and the tenant partition it does carry is
-asserted on the outbound review. Downstream systems act on an approved disposition; Ins1 hands
+asserted on the outbound review. Downstream systems act on an approved disposition; `claims-integrity-investigator` hands
 them a cited, replayable one.
 
 ### How does this relate to the other financial-crime systems in the catalog?
 
-Ins1 sits in the FCC category because the disposition is a per-claim fraud-indicator decision
+`claims-integrity-investigator` sits in the FCC category because the disposition is a per-claim fraud-indicator decision
 about an external claimant, but it is the insurance-claims point of that family. **G1** triages
 AML transaction-monitoring alerts, **G2** resolves sanctions and payment-message screening hits,
 **G3** scores in-flight payments for scam and authorised-push-payment fraud, **G4** investigates
 account takeover, and **G5** fuses security and fraud alerts for a SOC. Their organised-fraud
 output is an input here, never a capability to duplicate. The nearest structural sibling outside
-FCC is **Doc6**, the complaints and conduct file review, whose grounded-drafting skeleton this
+FCC is `complaints-review`, the complaints and conduct file review, whose grounded-drafting skeleton this
 repo's drafter mirrors.
 
 ### Can I use this for a different kind of file review?

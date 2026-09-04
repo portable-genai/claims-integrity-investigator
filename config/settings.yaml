@@ -1,4 +1,4 @@
-# Claims Integrity Investigator (Ins1) runtime configuration.
+# Claims Integrity Investigator (claims-integrity-investigator) runtime configuration.
 #
 # Loaded by `src/claims_integrity_investigator/config.py`. Point at a different file with
 # CLAIMSINTEG_SETTINGS; a path that is named but missing is a boot error, not
@@ -46,9 +46,9 @@ iap_audience: ${CLAIMSINTEG_IAP_AUDIENCE:-}
 review_url: ${HUMAN_REVIEW_URL:-}
 
 # The Governed-RAG service the managed policy-corpus adapter retrieves policy wording from.
-# Hrz2 is a HARD row dependency: an unset/empty endpoint makes the governed-retrieval adapter
+# enterprise-knowledge-base is a HARD row dependency: an unset/empty endpoint makes the governed-retrieval adapter
 # REFUSE rather than fall back to an ungoverned file search. Empty is correct offline (the local
-# fixture corpus stands in) and wrong for a managed deployment, which must name the Hrz2 URL.
+# fixture corpus stands in) and wrong for a managed deployment, which must name the enterprise-knowledge-base URL.
 knowledge_base_endpoint: ${CLAIMSINTEG_KNOWLEDGE_BASE_URL:-}
 
 # The adopter-owned assessment policy: the fraud-indicator uplifts, the fraud-score bands and the
@@ -125,7 +125,7 @@ adapters:
     onprem: claims_integrity_investigator.adapters.onprem.review_router:OnPremReviewRouter
 
   # Tracing. Which BACKEND a deployed profile exports to is not a binding: the gcp
-  # adapter reads OTEL_EXPORTER_OTLP_ENDPOINT and sends OTLP to the Hrz5 collector when it
+  # adapter reads OTEL_EXPORTER_OTLP_ENDPOINT and sends OTLP to the agent-observability collector when it
   # is set, straight to Cloud Trace when it is not. Tracing is not essential to
   # correctness, so onprem is ABSENT rather than fatal, unlike the other placeholders.
   tracer:
@@ -133,7 +133,7 @@ adapters:
     gcp: claims_integrity_investigator.adapters.gcp.tracer:CloudTracerAdapter
     onprem: claims_integrity_investigator.adapters.onprem.tracer:OnPremTracerAdapter
 
-  # The promotion authority (Hrz4). The local adapter scores offline but REFUSES to
+  # The promotion authority (model-quality-gate). The local adapter scores offline but REFUSES to
   # promote: a promotion certified by a laptop with no quality service is certified by
   # nothing.
   evaluation:

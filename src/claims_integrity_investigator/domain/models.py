@@ -131,11 +131,13 @@ class ExtractedClaim:
 
 
 # --------------------------------------------------------------------------- #
-# Governed policy-wording retrieval (Hrz2 RetrievalPort shape)
+# Governed policy-wording retrieval (enterprise-knowledge-base RetrievalPort shape)
 # --------------------------------------------------------------------------- #
 @dataclass(frozen=True, slots=True)
 class RetrievalQuery:
-    """A query for policy wording, resolved by the governed-RAG adapter (Hrz2)."""
+    """A query for policy wording, resolved by the governed-RAG adapter
+    (enterprise-knowledge-base).
+    """
 
     text: str
     top_k: int = 8
@@ -234,7 +236,8 @@ class ClaimAssessment:
     """The claim disposition: engine coverage and fraud findings plus a cited, drafted narrative.
 
     Every one of the four recommendations is consequential and human-approved, so
-    ``requires_human_review`` is always True and the surfaces route it to Hrz7 (rule R8). The
+    ``requires_human_review`` is always True and the surfaces route it to human-review-console (rule
+    R8). The
     ``severity`` and ``decision`` fields exist so this artifact flows through the same audit and
     review-router machinery the template ships; ``summary`` is the one-line, figure-bearing
     headline the audit record and the review payload carry.

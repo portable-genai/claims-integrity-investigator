@@ -1,6 +1,6 @@
 # Adoption FAQ
 
-For an engineering lead forking Ins1 as their insurer's claims-review base. The step-by-step is
+For an engineering lead forking `claims-integrity-investigator` as their insurer's claims-review base. The step-by-step is
 [`../ADOPTING.md`](../ADOPTING.md); this answers the "will it hurt later?" questions.
 
 ### How do I rebrand it for my organisation?
@@ -14,7 +14,7 @@ the venv, `pip install -e ".[dev]"`, and run `make gate`.
 There is deliberately **no `--cli` flag and no `--dist` flag**. The `[project.scripts]` entry
 point is named after the package, so `--package` renames the CLI too; and `--resource` is one
 literal doing four jobs (the distribution name, the GitHub id in `[project.urls]`, the A2A
-agent-card `provider`, and the Hrz4 eval bundle id), which are the same string on purpose so a
+agent-card `provider`, and the `model-quality-gate` eval bundle id), which are the same string on purpose so a
 fork's promotion record and its discovery card cannot disagree about which system they describe.
 A second flag for either could only drift out of step.
 
@@ -120,7 +120,7 @@ that are construction-only placeholders (`claim_file.fetch`, `claims_history.his
 `extraction.extract`, `fraud_linkage.linkage`, `generation.generate`,
 `policy_corpus.retrieve`), and the API preflight
 refuses to start a `gcp` process while any of them is bound rather than letting "production
-ready" become a label. Beyond that, `../../COMPLIANCE.md` marks the Hrz1 guardrail binding
-(R1), the Hrz5 observability binding (R2), the Hrz3 registration (R4), the Hrz4 bundle
+ready" become a label. Beyond that, `../../COMPLIANCE.md` marks the `agent-guardrail-gateway` binding
+(R1), the `agent-observability` binding (R2), the `agent-registry` registration (R4), the `model-quality-gate` bundle
 registration (R5), resilience and kill switches (P-10), cost and latency control (P-11) and
 object-level tenant isolation as open. Read those rows before you plan a go-live date.

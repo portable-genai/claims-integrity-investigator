@@ -3,6 +3,6 @@
     "render_region": "asia-southeast1",
     "render_package_name": "claims_integrity_investigator",
     "render_env_prefix": "CLAIMSINTEG",
-    "render_catalog_id": "Ins1"
+    "render_repository": "claims-integrity-investigator"
   }
 }

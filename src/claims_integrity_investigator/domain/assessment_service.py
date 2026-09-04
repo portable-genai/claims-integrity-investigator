@@ -3,10 +3,10 @@
 The consequential outputs (per-line coverage, the indemnity quantum, the fraud indicators and
 the accept / investigate / decline / SIU-refer recommendation) are ALL produced by the pure
 engines; the model only drafts the cited narrative that restates them. The order mirrors the
-Doc6 review service: fetch, REDACT before any model call, extract, retrieve governed wording,
+complaints-review service: fetch, REDACT before any model call, extract, retrieve governed wording,
 run the coverage and red-flag engines, recommend, draft, then redact again before the audit
 write. Every assessment is consequential, so ``requires_human_review`` is always True and the
-surfaces route it to Hrz7 (rule R8).
+surfaces route it to human-review-console (rule R8).
 """
 
 from __future__ import annotations

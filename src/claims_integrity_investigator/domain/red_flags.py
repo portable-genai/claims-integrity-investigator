@@ -1,11 +1,11 @@
 """The deterministic red-flag (fraud-indicator) engine: pure, replayable, provable-red.
 
-Indicators raise a fraud score and set the claim up for human review; they are NEVER
-conclusions (the Doc1 nominee/shell-indicator convention). Each indicator is a fingerprinted
-:class:`RedFlag` with its own uplift and cited evidence, and the score is
-``baseline + min(sum(uplifts), max_uplift)`` clamped to ``[0, 1]`` (the pKYC rescore shape). The
-engine reads every number off the injected :class:`AssessmentPolicy`, so the adopter owns the
-thresholds and no weight is a constant hiding here.
+Indicators raise a fraud score and set the claim up for human review; they are NEVER conclusions
+(the cdd-sow-research nominee/shell-indicator convention). Each indicator is a fingerprinted
+:class:`RedFlag` with its own uplift and cited evidence, and the score is ``baseline +
+min(sum(uplifts), max_uplift)`` clamped to ``[0, 1]`` (the pKYC rescore shape). The engine reads
+every number off the injected :class:`AssessmentPolicy`, so the adopter owns the thresholds and no
+weight is a constant hiding here.
 
 The claims-history velocity rule reads a claims-history record (the BigQuery linkage port,
 offline-fixture-backed by default) and the organised-fraud rule reads a G-series linkage feed;

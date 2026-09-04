@@ -271,10 +271,11 @@ CANONICAL_CALLS: dict[str, PortCase] = {
     "policy_corpus": PortCase(
         invoke=_policy_corpus_invoke,
         answered=_policy_corpus_answered,
-        # Hrz2 is a hard dependency: with no endpoint configured the governed adapter REFUSES
+        # enterprise-knowledge-base is a hard dependency: with no endpoint configured the governed
+        # adapter REFUSES
         # rather than falling back to an ungoverned search.
         managed_refusal=(RuntimeError,),
-        detail="retrieve governed policy wording (Hrz2)",
+        detail="retrieve governed policy wording (enterprise-knowledge-base)",
     ),
     "review_router": PortCase(
         invoke=_review_invoke,
@@ -295,7 +296,7 @@ CANONICAL_CALLS: dict[str, PortCase] = {
     "evaluation": PortCase(
         invoke=_evaluation_invoke,
         answered=_evaluation_answered,
-        # The managed gate reaches Hrz4 over HTTP, which is unreachable offline.
+        # The managed gate reaches model-quality-gate over HTTP, which is unreachable offline.
         managed_refusal=(Exception,),
         detail="score one golden dataset through the promotion authority",
     ),
