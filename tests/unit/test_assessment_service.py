@@ -209,7 +209,7 @@ def test_no_planted_identifier_reaches_the_model_the_worm_record_or_the_console(
         default=str,
     )
     for token in planted:
-        assert token not in outbound, f"{token} left for Hrz7 in {outbound!r}"
+        assert token not in outbound, f"{token} left for human-review-console in {outbound!r}"
 
 
 def test_the_audit_record_is_written_and_redacted() -> None:

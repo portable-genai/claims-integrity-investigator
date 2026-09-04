@@ -1,11 +1,12 @@
 """Managed PolicyCorpusPort: the Governed-RAG retrieval service (the mandated dependency).
 
-Ins1's row makes Hrz2 a hard dependency, so policy wording is retrieved through the Hrz2
-governed-RAG service (its managed backend is Gemini API File Search) rather than a generic file
-search reached directly. The Hrz2 endpoint is configuration: UNSET or emptied means the caller
-allowlist names nobody, and an unconfigured governed-retrieval boundary REFUSES rather than
-falling back to an ungoverned search. That refusal is evaluated before any SDK import, so it is
-the same on the offline profiles as in a misconfigured deployment.
+claims-integrity-investigator's row makes enterprise-knowledge-base a hard dependency, so policy
+wording is retrieved through the enterprise-knowledge-base governed-RAG service (its managed backend
+is Gemini API File Search) rather than a generic file search reached directly. The
+enterprise-knowledge-base endpoint is configuration: UNSET or emptied means the caller allowlist
+names nobody, and an unconfigured governed-retrieval boundary REFUSES rather than falling back to an
+ungoverned search. That refusal is evaluated before any SDK import, so it is the same on the offline
+profiles as in a misconfigured deployment.
 """
 
 from __future__ import annotations
@@ -31,5 +32,6 @@ class Hrz2PolicyCorpusAdapter:
         import httpx  # noqa: F401 - lazy; the governed call is deploy-time
 
         raise NotImplementedError(
-            "managed Governed-RAG retrieval is deploy-time; wire the S2S call to Hrz2"
+            "managed Governed-RAG retrieval is deploy-time; wire the S2S call to "
+            "enterprise-knowledge-base"
         )

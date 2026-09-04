@@ -1,4 +1,4 @@
-# Model card: Claims Integrity Investigator (Ins1)
+# Model card: Claims Integrity Investigator (`claims-integrity-investigator`)
 
 This is a STARTER model card. It records the model boundary as built and the controls that must
 be completed before a managed deployment. The deterministic engines are the system of record;
@@ -67,7 +67,7 @@ card describes the boundary that a real model will drop into, and what is alread
   schedule flag with no clause text behind it.
 - **R8 human review, on every result.** Every assessment is consequential, so
   `requires_human_review` is always True and `Decision.ESCALATED` is always the decision, and the
-  escalation is ROUTED to the Hrz7 console in the same call that produced it, by the API, the CLI
+  escalation is ROUTED to the `human-review-console` in the same call that produced it, by the API, the CLI
   and the agent tool alike. `tests/unit/test_review_routing.py` asserts the routing rather than
   the flag. Nothing auto-executes.
 
@@ -87,7 +87,7 @@ card describes the boundary that a real model will drop into, and what is alread
   stamp so a figure and a narrative can each be traced to what produced them. Do not remove an
   entry from `INCOMPLETE_MANAGED_OPERATIONS` until the adapter executes the real call and an
   integration test proves the response mapping.
-- **Prompt-injection screening through Hrz1** (rule R1). A claim file is adversary-supplied text:
+- **Prompt-injection screening through `agent-guardrail-gateway`** (rule R1). A claim file is adversary-supplied text:
   an FNOL narrative or an adjuster note is exactly where an instruction aimed at the extractor
   would be planted. Redaction is in place, screening is not, and no `GuardrailPort` is bound.
   Add one at the model boundary, screening input and output, and fail closed to
@@ -97,12 +97,12 @@ card describes the boundary that a real model will drop into, and what is alread
   circuit breaker on both model ports, and a switch that forces deterministic-only operation with
   the model disabled. The deterministic fallback already exists on the generation side; the
   switch that reaches for it deliberately does not.
-- **A managed-profile eval run through the Hrz4 gate** (P-08, R5). The offline eval scores the
+- **A managed-profile eval run through the `model-quality-gate`** (P-08, R5). The offline eval scores the
   deterministic pipeline against the golden oracle, which is evidence about the engines and not
-  about a hosted model. Register the bundle `claims-integrity-investigator` with Hrz4, then
+  about a hosted model. Register the bundle `claims-integrity-investigator` with `model-quality-gate`, then
   add a managed-profile run that scores real extraction accuracy and narrative groundedness
   against the same golden claims.
-- **Trace the model call to Hrz5** (rule R2). Spans today carry structural attributes only and no
+- **Trace the model call to `agent-observability`** (rule R2). Spans today carry structural attributes only and no
   prompt or response record leaves the process. When a model is wired, the prompt and response
   record belongs in the shared sink with the same redaction discipline the audit write uses, not
   in a trace backend with a wider read audience.

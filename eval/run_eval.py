@@ -1,13 +1,13 @@
 #!/usr/bin/env python3
-"""Evaluation gate for Claims Integrity Investigator (Ins1).
+"""Evaluation gate for Claims Integrity Investigator (claims-integrity-investigator).
 
 Two named layers via ``--mode`` (the scaffold is ``agent_eval_kit.eval_main``):
 
 * **smoke** (default) - the offline pre-merge check CI runs on every change: it drives the real
   ``ClaimAssessmentService`` against a golden set with SDK-free local adapters and scores every
-  metric AGAINST THE DATASET'S OWN oracle, never against the pipeline's own verdict.
-* **gate** - the promotion verdict from the shared Hrz4 authority (requires the ``gcp``
-  profile), via ``agent_eval_kit.PromotionGateClient``.
+  metric AGAINST THE DATASET'S OWN oracle, never against the pipeline's own verdict. * **gate** -
+  the promotion verdict from the shared model-quality-gate authority (requires the ``gcp`` profile),
+  via ``agent_eval_kit.PromotionGateClient``.
 
 Every metric is proved able to go RED before it is trusted (``assert_each_can_go_red``): a metric
 that cannot distinguish a wrong answer from a right one, or that reads the pipeline's own answer
@@ -58,7 +58,8 @@ THRESHOLDS: dict[str, float] = {
     "groundedness": 0.99,
     "pii_safety": 0.99,
 }
-#: The registered Hrz4 metric bundle for this vertical (Hrz4 owns the metrics + thresholds).
+#: The registered model-quality-gate metric bundle for this vertical (model-quality-gate owns the
+#: metrics + thresholds).
 _BUNDLE = "claims-integrity-investigator"
 
 
@@ -261,6 +262,6 @@ if __name__ == "__main__":
             smoke=run_smoke,
             gate=run_gate,
             default_dataset=DEFAULT_DATASET,
-            description="Offline / Hrz4 evaluation gate for Ins1.",
+            description="Offline / model-quality-gate for claims-integrity-investigator.",
         )
     )

@@ -1,6 +1,6 @@
 # Security FAQ
 
-For an AppSec reviewer sizing up this repo (Ins1, the Claims Integrity Investigator). It
+For an AppSec reviewer sizing up this repo (`claims-integrity-investigator`, the Claims Integrity Investigator). It
 explains what the attack surface is, what is deliberately out of scope and why that is honest
 rather than a gap, and where the evidence lives.
 
@@ -29,8 +29,7 @@ At three boundaries, not one, all using the shared `pii-kit` rows selected by
    narrative before the `AuditEvent` is constructed, so nothing raw reaches the WORM store.
 3. **Before the review payload leaves the process.** `adapters/_review_payload.py` scrubs the
    subject, summary and every citation snippet against EVERY jurisdiction's rows plus the
-   universal email and phone rows, not just this deployment's selection, because the Hrz7
-   console is a shared sink. `tests/unit/test_review_routing.py::test_the_payload_is_redacted_before_it_leaves_the_process`
+   universal email and phone rows, not just this deployment's selection, because the `human-review-console` is a shared sink. `tests/unit/test_review_routing.py::test_the_payload_is_redacted_before_it_leaves_the_process`
    is the standing gate.
 
 A fourth path exists for the agent surface: `agent/tools.py:_redacted` walks a whole tool result
@@ -101,7 +100,7 @@ file on a different volume), and `tests/unit/test_audit_anchor.py` proves both h
 the control case where the same truncation goes undetected without an anchor. Once store and
 anchor disagree the service refuses to append rather than re-anchoring. This is still the
 offline stand-in: production tamper-evidence is the locked Cloud Logging WORM bucket
-(`infra/terraform/logging_worm.tf`) and the enterprise sink is Hrz5.
+(`infra/terraform/logging_worm.tf`) and the enterprise sink is `agent-observability`.
 
 ## What about the browser surface?
 
@@ -117,11 +116,11 @@ its dependabot ecosystem and its CI job consistent in both directions.
 
 ## What is explicitly out of scope for this repo?
 
-Prompt-injection screening and output filtering: those belong to the **Hrz1** guardrail gateway,
+Prompt-injection screening and output filtering: those belong to the `agent-guardrail-gateway`,
 and this repo has not yet bound a `GuardrailPort` to it (the R1 row in `../../COMPLIANCE.md`
 says so plainly rather than claiming coverage). Governed retrieval and its ACL model are
-**Hrz2**'s. Agent identity and entitlements are **Hrz3**'s. Model-risk promotion is **Hrz4**'s.
-The enterprise WORM sink and tracing backend are **Hrz5**'s. The review console, including its
-own re-redaction and its approval workflow, is **Hrz7**'s. Organised-fraud ring detection is the
+`enterprise-knowledge-base`'s. Agent identity and entitlements are `agent-registry`'s. Model-risk promotion is `model-quality-gate`'s.
+The enterprise WORM sink and tracing backend are `agent-observability`'s. The review console, including its
+own re-redaction and its approval workflow, is `human-review-console`'s. Organised-fraud ring detection is the
 **G1 to G5** financial-crime suite's; this repo consumes a linkage signal as a data feed and
-scores it. Ins1 does not re-implement any of them, and a fork should not either.
+scores it. `claims-integrity-investigator` does not re-implement any of them, and a fork should not either.

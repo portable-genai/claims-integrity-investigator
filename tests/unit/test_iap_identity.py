@@ -389,7 +389,8 @@ def _local_rebound(port: str, local_cls: str, onprem_cls: str) -> list[str]:
     """Bind a data/generation port to its SDK-free local adapter under local AND gcp.
 
     So the managed IDENTITY binding can be exercised without needing every OTHER managed
-    backend (Cloud Storage, Document AI, Hrz2, BigQuery, Gemini) reachable. This is the
+    backend (Cloud Storage, Document AI, enterprise-knowledge-base, BigQuery, Gemini) reachable.
+    This is the
     documented ``adapters:`` rebinding path, not a test-only hook.
     """
     return [

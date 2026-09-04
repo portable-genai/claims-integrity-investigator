@@ -1,6 +1,6 @@
 # Adopting this repo as your base
 
-This repository (Ins1, the Claims Integrity Investigator) is a **common base** that an insurer,
+This repository (`claims-integrity-investigator`, the Claims Integrity Investigator) is a **common base** that an insurer,
 a bancassurer or a TPA forks to build its own claims coverage and fraud-indicator review
 service: it reads a claim file (FNOL, adjuster notes, invoices, the policy schedule), runs a
 deterministic coverage and indemnity engine and a deterministic red-flag engine over it, drafts
@@ -37,7 +37,7 @@ The domain is layered so the boundary is a physical module split, not a conventi
 If your product is another **file-review with a deterministic verdict** (a complaint review, a
 warranty or benefit adjudication, a trade-credit claim), most of the hexagon transfers directly:
 the three profiles, the redact-before-model ordering, the refuse-rather-than-guess coverage
-rule, the cited-figure convention, the eval gate and the Hrz7 review routing. What you replace
+rule, the cited-figure convention, the eval gate and the `human-review-console` review routing. What you replace
 is the schedule and clause semantics in `coverage_engine.py`, the indicator rules in
 `red_flags.py`, and the extraction grammar the offline adapter parses.
 
@@ -89,7 +89,7 @@ There is deliberately **no `--cli` flag**: the `[project.scripts]` entry point i
 flag could only drift out of step with it. There is no `--dist` flag either, because
 `--resource` is one literal doing four jobs at once: the distribution name in `pyproject.toml`,
 the GitHub id in `[project.urls]`, the A2A agent-card `provider` in `agent/agent_card.py`, and
-the Hrz4 eval bundle id (`_BUNDLE` in `eval/run_eval.py`). They are the same string on purpose,
+the `model-quality-gate` eval bundle id (`_BUNDLE` in `eval/run_eval.py`). They are the same string on purpose,
 so a fork's promotion record and its discovery card cannot disagree about which system they
 describe.
 
@@ -143,7 +143,7 @@ prose too. The script deliberately does NOT touch the human decisions below.
    and selects which `pii-kit` rows the redactor runs, in an order this vertical owns (national
    ids first, universal email and phone last). Set it to the markets you actually serve. Note
    that the outbound review payload is scrubbed against EVERY jurisdiction's rows regardless
-   (`adapters/_review_payload.py`), because the Hrz7 console is a shared sink.
+   (`adapters/_review_payload.py`), because the `human-review-console` is a shared sink.
 5. **Reference data is fictional.** Every claimant in `adapters/local/_fixtures.py` is plainly
    invented, every identifier is synthetic and every domain is `.example`; the fixture policy
    corpus is four made-up wordings and the fraud-linkage feed is a fixture. Replace all of it
@@ -173,23 +173,23 @@ are owned by sibling platform services; integrate rather than rebuild them. The 
 [`faq/features-faq.md`](faq/features-faq.md); the short version, and only integrations this repo
 really has:
 
-- **Hrz2** governed knowledge base: a HARD dependency. Policy wording is retrieved through the
+- `enterprise-knowledge-base` governed knowledge base: a HARD dependency. Policy wording is retrieved through the
   Governed-RAG service (`adapters/gcp/policy_corpus.py:Hrz2PolicyCorpusAdapter`, endpoint
   `CLAIMSINTEG_KNOWLEDGE_BASE_URL` / `knowledge_base_endpoint`), which REFUSES when unconfigured rather than falling
   back to an ungoverned search. Do not build a second retrieval path.
-- **Hrz3** agent registry: this agent publishes its A2A card at
+- `agent-registry`: this agent publishes its A2A card at
   `/.well-known/agent-card.json`, built from the same tool table the runtime binds
   (`agent/agent_card.py`). Register the card; take the agent's identity and entitlements from
-  Hrz3 rather than minting them here.
-- **Hrz4** AI-quality and model-risk gate: owns promotion. `eval/run_eval.py --mode gate`
-  delegates the verdict to Hrz4 under the bundle id `claims-integrity-investigator` and
+  `agent-registry` rather than minting them here.
+- `model-quality-gate`: owns promotion. `eval/run_eval.py --mode gate`
+  delegates the verdict to `model-quality-gate` under the bundle id `claims-integrity-investigator` and
   refuses to run off the managed profile; the offline `--mode smoke` layer mirrors its
   thresholds. Register your bundle there, do not re-implement a promotion authority.
-- **Hrz5** observability and immutable WORM audit: audit events and trace spans belong there
-  (`adapters/gcp/audit.py`, `adapters/gcp/tracer.py`, which exports OTLP to the Hrz5 collector
+- `agent-observability` and immutable WORM audit: audit events and trace spans belong there
+  (`adapters/gcp/audit.py`, `adapters/gcp/tracer.py`, which exports OTLP to the `agent-observability` collector
   when `OTEL_EXPORTER_OTLP_ENDPOINT` is set). The in-repo hash-chained store is the offline
   stand-in, not the enterprise sink.
-- **Hrz7** human-review and maker-checker console: every assessment escalates, and rule R8 says
+- `human-review-console` human-review and maker-checker console: every assessment escalates, and rule R8 says
   it is ROUTED, not flagged. `ports/review_router.py` has an adapter in every profile and the
   API, the CLI and the agent tool all route in the same call that produced the result. You wire
   your console endpoint (`HUMAN_REVIEW_URL`); you do not re-implement the console.
@@ -198,12 +198,12 @@ really has:
   through `ports/fraud_linkage.py`. The organised-fraud signal arrives as raw linkage and the
   scoring happens here; ring detection itself is theirs. The default binding is a local fixture,
   so name a live export when you have one.
-- **Hrz1** guardrail gateway is a mandated dependency this repo has NOT yet integrated (see the
+- `agent-guardrail-gateway` is a mandated dependency this repo has NOT yet integrated (see the
   R1 row in [`COMPLIANCE.md`](../COMPLIANCE.md)). Redaction is in place at every boundary, but
-  prompt-injection screening and output filtering are Hrz1's job and belong behind a
+  prompt-injection screening and output filtering are `agent-guardrail-gateway`'s job and belong behind a
   `GuardrailPort`, not in a second in-repo screening engine.
 
-Ins1's responsibility ends at the recommendation. It does not pay a claim, post a reserve,
+`claims-integrity-investigator`'s responsibility ends at the recommendation. It does not pay a claim, post a reserve,
 notify a claimant, open an SIU case file or file a regulatory report: those are downstream
 systems acting on an approved disposition.
 
@@ -219,5 +219,5 @@ systems acting on an approved disposition.
 - [ ] Rebuilt the eval golden set and reviewed the six thresholds.
 - [ ] Implemented and integration-tested the managed adapters, emptied `INCOMPLETE_MANAGED_OPERATIONS`.
 - [ ] Reviewed the deploy posture (Dockerfile, Terraform, bind address, WORM retention lock).
-- [ ] Wired your Hrz7 console and Hrz2 endpoint, and decided which sibling services you integrate vs stub.
+- [ ] Wired your `human-review-console` and `enterprise-knowledge-base` endpoint, and decided which sibling services you integrate vs stub.
 - [ ] Recorded your baseline upstream tag so you can take future fixes.

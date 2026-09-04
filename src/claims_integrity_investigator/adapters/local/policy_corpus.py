@@ -1,10 +1,11 @@
 """Local PolicyCorpusPort: the offline stand-in for the Governed-RAG retrieval.
 
-There is no Hrz2 emulator, so the local profile serves policy wording from an in-repo fixture
-corpus keyed by policy reference. It returns the same :class:`RetrievedPassage` objects with
-clause-level citations the managed Hrz2 adapter would, preserving interface parity. Filtering to
-the claim's ``policy_ref`` is deterministic, and an unknown policy returns no passages, which is
-exactly what makes the coverage engine's refuse-rather-than-guess path testable offline.
+There is no enterprise-knowledge-base emulator, so the local profile serves policy wording from an
+in-repo fixture corpus keyed by policy reference. It returns the same :class:`RetrievedPassage`
+objects with clause-level citations the managed enterprise-knowledge-base adapter would, preserving
+interface parity. Filtering to the claim's ``policy_ref`` is deterministic, and an unknown policy
+returns no passages, which is exactly what makes the coverage engine's refuse-rather-than-guess path
+testable offline.
 """
 
 from __future__ import annotations

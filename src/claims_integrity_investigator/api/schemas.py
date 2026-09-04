@@ -46,7 +46,8 @@ class AssessResponse(BaseModel):
     summary: str
     narrative: str
     requires_human_review: bool
-    #: Where the escalation WENT (rule R8): the Hrz7 review id, or the local queue reference.
+    #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
+    #: reference.
     #: Empty only when the result did not escalate (an assessment always does).
     review_ref: str = ""
     coverage: list[CoverageLineModel] = []

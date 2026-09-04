@@ -1,11 +1,11 @@
 """The grounded assessment drafter: the LLM's one job, and it produces no figure.
 
-Mirrors the Doc6 grounded skeleton (render engine findings and retrieved wording -> structured
-generation -> map returned source ids back to Citations -> always a draft). The narrative
+Mirrors the complaints-review grounded skeleton (render engine findings and retrieved wording ->
+structured generation -> map returned source ids back to Citations -> always a draft). The narrative
 RESTATES the deterministic engine's coverage verdicts, indemnity quantum and red flags; it never
-originates a number or a verdict. Output is schema-validated and DISCARDED on failure, falling
-back to a deterministic template so a disposition never waits on generation. Pure domain code:
-it talks to the generation port and stdlib only, no cloud SDK.
+originates a number or a verdict. Output is schema-validated and DISCARDED on failure, falling back
+to a deterministic template so a disposition never waits on generation. Pure domain code: it talks
+to the generation port and stdlib only, no cloud SDK.
 """
 
 from __future__ import annotations

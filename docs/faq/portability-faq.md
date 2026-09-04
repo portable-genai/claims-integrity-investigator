@@ -1,7 +1,7 @@
 # Portability FAQ
 
 For architecture, cloud, and exit-planning reviewers who want to know how real the "no lock-in"
-claim is for Ins1, and how an off-cloud or sovereign exit would actually work.
+claim is for `claims-integrity-investigator`, and how an off-cloud or sovereign exit would actually work.
 
 ## What is the no-lock-in claim, concretely?
 
@@ -26,7 +26,7 @@ state:
   actually enqueues. This is the dev, test, CI and demo default, and the working proof the
   domain runs entirely off-cloud.
 - **`gcp`** is the managed stack (Cloud Logging WORM, IAP identity, Cloud Trace or OTLP to the
-  Hrz5 collector, the Governed-RAG retrieval, the Hrz7 review intake, the Hrz4 promotion
+  `agent-observability` collector, the Governed-RAG retrieval, the `human-review-console` review intake, the `model-quality-gate` promotion
   client), with every SDK import lazy so the other profiles import with nothing installed.
 - **`onprem`** is fail-fast placeholders that satisfy the same Protocols and raise
   `NotImplementedError`, naming the migration target. They prove the ports are honest exit seams
@@ -105,7 +105,7 @@ figure cannot pick up a float rounding error on the way out.
 The managed profile is not finished, and the repo refuses to pretend otherwise:
 `managed_readiness.py:INCOMPLETE_MANAGED_OPERATIONS` names the adapters that are still
 construction-only placeholders, and the API preflight refuses to start a `gcp` process while any
-of them is bound. Production tamper-evidence remains the locked WORM bucket's and Hrz5's job,
-not the local hash chain's. And the sibling platform services (Hrz2 retrieval, Hrz4 promotion,
-Hrz5 audit and tracing, Hrz7 review) are dependencies you re-point at your own equivalents on
+of them is bound. Production tamper-evidence remains the locked WORM bucket's and `agent-observability`'s job,
+not the local hash chain's. And the sibling platform services (`enterprise-knowledge-base` retrieval, `model-quality-gate` promotion,
+`agent-observability` and tracing, `human-review-console` review) are dependencies you re-point at your own equivalents on
 exit, not code this repo can hand you.

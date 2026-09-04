@@ -7,7 +7,7 @@ here. Read it first. This file carries only what is specific to this one.
 
 ## What this is
 
-Claims Integrity Investigator (Ins1): Deterministic insurance claim coverage and fraud-indicator review, human-approved disposition.
+Claims Integrity Investigator (`claims-integrity-investigator`): Deterministic insurance claim coverage and fraud-indicator review, human-approved disposition.
 Rendered from `hex-service-template`, so it starts at reference parity rather than converging
 toward it. Package `claims_integrity_investigator`, environment prefix
 `CLAIMSINTEG`, region `asia-southeast1`.

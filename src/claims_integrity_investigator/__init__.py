@@ -1,4 +1,4 @@
-"""Claims Integrity Investigator (Ins1).
+"""Claims Integrity Investigator (claims-integrity-investigator).
 
 Deterministic insurance claim coverage and fraud-indicator review, human-approved disposition.
 

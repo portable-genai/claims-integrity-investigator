@@ -173,7 +173,7 @@ CLAIM_FILES: dict[str, RawClaimFile] = {
 
 
 # --------------------------------------------------------------------------- #
-# Policy-wording corpus (what the governed-RAG / Hrz2 local stand-in returns)
+# Policy-wording corpus (what the governed-RAG / enterprise-knowledge-base local stand-in returns)
 # --------------------------------------------------------------------------- #
 def _passage(clause: str, policy_ref: str, title: str, text: str, score: float) -> RetrievedPassage:
     return RetrievedPassage(

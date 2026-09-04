@@ -27,7 +27,7 @@ def main(argv: list[str] | None = None) -> int:
     assess_cmd.add_argument(
         "--tenant",
         default="",
-        help="Tenant whose claim to read, and the partition asserted to Hrz7.",
+        help="Tenant whose claim to read, and the partition asserted to human-review-console.",
     )
 
     args = parser.parse_args(argv)

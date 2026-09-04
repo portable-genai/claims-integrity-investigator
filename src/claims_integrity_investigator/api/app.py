@@ -1,4 +1,4 @@
-"""FastAPI application for Claims Integrity Investigator (Ins1).
+"""FastAPI application for Claims Integrity Investigator (claims-integrity-investigator).
 
 Import-safe (the Container is built at request time, never at import; only ``Settings`` is read
 at import, to learn which identity adapter is bound, and no adapter is constructed), identity is
@@ -282,7 +282,8 @@ def assess(
     """Assess a claim; the audit actor is the verified principal, never the request body.
 
     Rule R8: every assessment is consequential, so it always sets ``requires_human_review`` and
-    is ROUTED to the Hrz7 console here, in the same request that produced it. Setting the flag is
+    is ROUTED to the human-review-console here, in the same request that produced it. Setting the
+    flag is
     not the escalation; routing is. The maker is the verified principal, so the console records
     who originated the decision. The consequential coverage and fraud figures are the engine's;
     the model only drafts the narrative.

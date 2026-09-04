@@ -472,7 +472,7 @@ class Settings:
     #: that verifies perfectly. Empty means no anchor, which is right for the ephemeral
     #: ``:memory:`` store and wrong for anything durable.
     audit_anchor_path: str = ""
-    #: Base URL of the Hrz7 Human-Review console the R8 producer path submits to.
+    #: Base URL of the human-review-console Human-Review console the R8 producer path submits to.
     review_url: str = ""
     #: The audience the managed IAP identity adapter verifies the signed assertion AGAINST: the
     #: IAP-protected resource, ``/projects/<NUM>/global/backendServices/<ID>`` behind an HTTPS
@@ -493,7 +493,7 @@ class Settings:
     project_id: str = ""
     #: Base URL of the Governed-RAG service the managed policy-corpus adapter calls. Empty
     #: means unconfigured, and the governed-retrieval adapter REFUSES rather than reaching an
-    #: ungoverned search: Hrz2 is a hard row dependency, not an optimisation.
+    #: ungoverned search: enterprise-knowledge-base is a hard row dependency, not an optimisation.
     knowledge_base_endpoint: str = ""
     #: The adopter-owned assessment thresholds and weights (the ``policy:`` block). Frozen, so an
     #: engine cannot mutate it, and stamped with an ``as_of`` so a figure records its policy.
