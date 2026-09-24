@@ -13,9 +13,11 @@ the `human-review-console` in the same call that produced it (rule R8),
 never terminated in a local boolean. The API, the CLI and the agent tool all route before
 returning, and the response carries a `review_ref` so a caller can distinguish a routed
 escalation from one that stopped locally. An SIU-refer maps to CRITICAL, which the outbound
-payload marks for dual control (two approvals). The managed router REFUSES when no console is
-configured rather than swallowing the escalation, and the on-premises placeholder raises rather
-than dropping it. **Nothing is paid, denied or reserved by this service.**
+payload marks for dual control (two approvals). Under the managed profile the service refuses to
+boot with routing on and no console configured, and a hand-off that fails at request time (the
+on-premises placeholder raises, for one) is reported as `review_routing: "failed"` and logged
+rather than dropped. `CLAIMSINTEG_REVIEW_ROUTING=off` switches routing off, stated and logged at
+startup. **Nothing is paid, denied or reserved by this service.**
 
 ### Is the consequential decision explainable and replayable?
 

@@ -51,8 +51,9 @@ No, and no. **Every** assessment sets `requires_human_review=True` and carries
 `Decision.ESCALATED`, including the clean accept case, and every surface routes it to the
 `human-review-console` in the same call that produced it (rule R8): the
 API (`POST /v1/assess`), the CLI (`assess`) and the agent tool (`assess_claim`) all call
-`ReviewRouterPort.route` before returning, and the response carries a `review_ref` so a caller
-can tell a routed escalation from one that stopped locally. An SIU-refer maps to CRITICAL, which
+`ReviewRouterPort.route` before returning, and the response carries a `review_ref` and a
+`review_routing` value (`routed`, `failed`, `off`, `not_required`) so a caller can tell a routed
+escalation from one that stopped locally. An SIU-refer maps to CRITICAL, which
 demands dual control (two approvals) in the outbound payload. The agent proposes; a human
 disposes; a downstream system pays.
 

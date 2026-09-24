@@ -67,6 +67,7 @@ from hex_service_kit.web import (
     make_require_service_caller,
 )
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import (
     LOCAL_PROFILE,
     Container,
@@ -298,10 +299,13 @@ def assess(
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"no claim {request.claim_id!r}"
         ) from exc
-    review_ref = container.review_router.route(
-        result, maker=principal.actor, tenant=principal.tenant
+    # The hand-off never fails an already-computed, already-audited assessment; the response
+    # says what happened to it instead (the fleet's runtime-control contract).
+    routing = RecordingReviewRouter(container.review_router)
+    review_ref = routing.route(result, maker=principal.actor, tenant=principal.tenant)
+    return AssessResponse.from_domain(
+        result, review_ref=review_ref, review_routing=routing.outcome.value
     )
-    return AssessResponse.from_domain(result, review_ref=review_ref)
 
 
 @app.get("/v1/siu-queue", response_model=list[SiuQueueItem], tags=["artifacts"])
