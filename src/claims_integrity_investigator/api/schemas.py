@@ -2,6 +2,8 @@
 
 from __future__ import annotations
 
+from typing import Literal
+
 from pydantic import BaseModel
 
 from ..domain.models import ClaimAssessment
@@ -47,15 +49,23 @@ class AssessResponse(BaseModel):
     narrative: str
     requires_human_review: bool
     #: Where the escalation WENT (rule R8): the human-review-console review id, or the local queue
-    #: reference.
-    #: Empty only when the result did not escalate (an assessment always does).
+    #: reference. Empty exactly when ``review_routing`` is not ``routed``.
     review_ref: str = ""
+    #: What happened to the hand-off: routed, failed, off or not_required. ``failed`` means the
+    #: result is NOT queued for review, and the console says so.
+    review_routing: Literal["routed", "failed", "off", "not_required"] = "not_required"
     coverage: list[CoverageLineModel] = []
     red_flags: list[RedFlagModel] = []
     citations: list[CitationModel] = []
 
     @classmethod
-    def from_domain(cls, result: ClaimAssessment, *, review_ref: str = "") -> AssessResponse:
+    def from_domain(
+        cls,
+        result: ClaimAssessment,
+        *,
+        review_ref: str = "",
+        review_routing: str = "not_required",
+    ) -> AssessResponse:
         from ..domain.models import money
 
         return cls(
@@ -71,6 +81,7 @@ class AssessResponse(BaseModel):
             narrative=result.narrative,
             requires_human_review=result.requires_human_review,
             review_ref=review_ref,
+            review_routing=review_routing,  # type: ignore[arg-type]
             coverage=[
                 CoverageLineModel(
                     line_id=line.line_id,

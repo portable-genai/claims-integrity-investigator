@@ -21,6 +21,7 @@ from typing import TYPE_CHECKING, Any
 from hex_service_kit.serialization import to_jsonable
 from pii_kit import redact
 
+from ..adapters.controls import RecordingReviewRouter
 from ..config import Container, Settings, build_container
 from ..domain.assessment_service import build_assessment_service
 from ..domain.pii import PII_PATTERNS
@@ -79,19 +80,24 @@ def assess_claim(
 
     Returns:
       A JSON-safe result dict with every string masked for personal data (P-04: a tool result
-      goes into a model's context), plus ``review_ref``: where the escalation WENT, so a caller
-      can confirm the escalation was routed and not merely flagged.
+      goes into a model's context), plus ``review_ref``: where the escalation WENT, and
+      ``review_routing``: routed, failed, off or not_required, so a caller can confirm the
+      escalation was routed and not merely flagged. The reference is empty exactly when
+      ``review_routing`` is not ``routed``.
     """
     container = _container(settings)
     scope = tenant or container.settings.tenant
     result = build_assessment_service(container).assess(claim_id, actor=actor, tenant=scope)
-    review_ref = container.review_router.route(result, maker=actor, tenant=tenant)
+    routing = RecordingReviewRouter(container.review_router)
+    review_ref = routing.route(result, maker=actor, tenant=tenant)
     payload = _redacted(to_jsonable(result))
     if not isinstance(payload, dict):  # pragma: no cover - dataclasses serialise to objects
         raise TypeError("a claim assessment must serialise to a JSON object")
     # Attached after the redaction pass: it is a routing reference, not narrative text, and
     # masking an identifier would break the caller's ability to look the review up.
     payload["review_ref"] = review_ref
+    payload["review_routing"] = routing.outcome.value
+    payload["review_routing"] = routing.outcome.value
     return payload
 
 
