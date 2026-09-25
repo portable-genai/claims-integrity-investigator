@@ -7,7 +7,7 @@ The identity placeholder is the one with a serving consequence, so it refuses wi
 REASON rather than a bare crash: `OnPremIdentityUnimplementedError` is both a
 `NotImplementedError` (the exit family's uniform refusal, which the contract suite and
 `scripts/portability_demo.py` assert for every port) and an `EndUserAuthUnavailableError`, so
-`POST /v1/triage` answers 501 with the message below instead of a 500 with no body. Until it is
+`POST /v1/assess` answers 501 with the message below instead of a 500 with no body. Until it is
 replaced, no end user can be authenticated at all, and the loopback exposure guard treats the
 deployment accordingly: see the exposure section of [runbook.md](runbook.md).
 

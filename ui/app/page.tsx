@@ -28,6 +28,25 @@ function reviewRoutingOf(body: string): string | undefined {
   }
 }
 
+// The claim files the local profile seeds for the personas' tenant (FICTIONAL). There is no list
+// endpoint for claims: `POST /v1/assess` takes a claim id and fetches the file server-side, so
+// these are suggestions for the id field, not a catalogue. Another deployment's ids are typed in.
+const SEEDED_CLAIMS = [
+  { claim_id: "CLM-1001", subject: "Ravi Kumar (FICTIONAL), home contents water damage" },
+  { claim_id: "CLM-1002", subject: "Mei Ling (FICTIONAL), home contents flood" },
+  { claim_id: "CLM-1003", subject: "Jordan Blake (FICTIONAL), tools theft from a van" },
+  { claim_id: "CLM-1004", subject: "Priya Nair (FICTIONAL), motor collision with injury" },
+];
+
+// One row of the review queue, as `GET /v1/siu-queue` returns it: the assessments this process
+// has routed to human review, scoped to the persona's own tenant.
+interface QueueItem {
+  claim_id: string;
+  subject: string;
+  recommendation: string;
+  severity: string;
+}
+
 interface CardSummary {
   name?: string;
   description?: string;
@@ -36,8 +55,10 @@ interface CardSummary {
 
 export default function Home() {
   const [persona, setPersona] = useState(PERSONAS[0]);
-  const [subject, setSubject] = useState("Acme Holdings (FICTIONAL)");
-  const [text, setText] = useState("urgent data breach reported by the branch");
+  const [claimId, setClaimId] = useState(SEEDED_CLAIMS[3].claim_id);
+  const [queue, setQueue] = useState<QueueItem[] | null>(null);
+  const [queueError, setQueueError] = useState("");
+  const [queueRead, setQueueRead] = useState(0);
   const [result, setResult] = useState("");
   const [failed, setFailed] = useState(false);
   const [busy, setBusy] = useState(false);
@@ -57,19 +78,45 @@ export default function Home() {
     };
   }, []);
 
+  // The review queue is the persona's own tenant's, so it is re-read whenever the persona changes,
+  // and again after every assessment, because every assessment is routed to human review.
+  useEffect(() => {
+    let live = true;
+    setQueueError("");
+    fetch(API + "/v1/siu-queue", { cache: "no-store", headers: { "X-Dev-Persona": persona } })
+      .then(async (response) => {
+        if (!response.ok) throw new Error(response.status + " " + (await response.text()));
+        return (await response.json()) as QueueItem[];
+      })
+      .then((items) => {
+        if (live) setQueue(items);
+      })
+      .catch((error: unknown) => {
+        if (live) setQueueError(String(error));
+      });
+    return () => {
+      live = false;
+    };
+  }, [persona, queueRead]);
+
+  useEffect(() => {
+    setResult("");
+  }, [persona]);
+
   async function submit(event: React.FormEvent) {
     event.preventDefault();
     setBusy(true);
     setFailed(false);
     try {
-      const response = await fetch(API + "/v1/triage", {
+      const response = await fetch(API + "/v1/assess", {
         method: "POST",
         headers: { "Content-Type": "application/json", "X-Dev-Persona": persona },
-        body: JSON.stringify({ subject, text }),
+        body: JSON.stringify({ claim_id: claimId.trim() }),
       });
       const body = await response.text();
       setFailed(!response.ok);
       setResult(body);
+      setQueueRead((count) => count + 1);
     } catch (error) {
       setFailed(true);
       setResult(String(error));
@@ -83,7 +130,7 @@ export default function Home() {
       <h1>{card?.name ?? "Agent console"}</h1>
       <p className="sub">
         {card?.description ??
-          "Submit a case. The decision is deterministic, cited, and routed to a human reviewer when it escalates."}
+          "Assess a claim by id. The recommendation is deterministic, cited, and routed to a human reviewer."}
       </p>
 
       <form onSubmit={submit}>
@@ -102,17 +149,28 @@ export default function Home() {
         </fieldset>
 
         <fieldset>
-          <legend>The case</legend>
+          <legend>The claim</legend>
           <label>
-            Subject
-            <input value={subject} onChange={(event) => setSubject(event.target.value)} />
+            Claim id (the claimant, policy and documents are fetched server-side)
+            <input
+              value={claimId}
+              list="seeded-claims"
+              onChange={(event) => setClaimId(event.target.value)}
+            />
+            <datalist id="seeded-claims">
+              {SEEDED_CLAIMS.map((claim) => (
+                <option key={claim.claim_id} value={claim.claim_id}>
+                  {claim.subject}
+                </option>
+              ))}
+            </datalist>
           </label>
-          <label>
-            Description
-            <textarea value={text} onChange={(event) => setText(event.target.value)} />
-          </label>
-          <button type="submit" disabled={busy}>
-            {busy ? "Working" : "Triage this case"}
+          <p className="sub">
+            Seeded on the local profile:{" "}
+            {SEEDED_CLAIMS.map((claim) => claim.claim_id).join(", ")}.
+          </p>
+          <button type="submit" disabled={busy || !claimId.trim()}>
+            {busy ? "Working" : "Assess this claim"}
           </button>
         </fieldset>
       </form>
@@ -123,6 +181,23 @@ export default function Home() {
         </p>
       ) : null}
       {result ? <pre className={failed ? "result error" : "result"}>{result}</pre> : null}
+
+      <fieldset>
+        <legend>Review queue</legend>
+        {queueError ? <p className="result error">Could not read the review queue: {queueError}</p> : null}
+        {queue && queue.length === 0 ? (
+          <p className="sub">Nothing routed to review in this persona&apos;s tenant yet.</p>
+        ) : null}
+        {queue && queue.length > 0 ? (
+          <ul>
+            {queue.map((item, index) => (
+              <li key={item.claim_id + ":" + index}>
+                {item.claim_id}: {item.subject}, {item.recommendation} ({item.severity})
+              </li>
+            ))}
+          </ul>
+        ) : null}
+      </fieldset>
 
       <footer>
         Synthetic, obviously fictional data only. Identity is resolved server-side and the
