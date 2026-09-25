@@ -78,16 +78,16 @@ THREE are bounded by the guard below:
    identity, so this is bounded whatever else is configured, INCLUDING when
    `CLAIMSINTEG_S2S_TOKEN` is set. Setting that secret closes the S2S
    dependency and nothing else: it authenticates a calling SERVICE and authenticates no end user,
-   so it cannot make `/v1/triage` or `/v1/personas` authenticated and it does NOT switch the
+   so it cannot make `/v1/assess` or `/v1/personas` authenticated and it does NOT switch the
    guard off. Were it to, a LAN peer with no credential at all would receive the full seeded
-   persona list, approver included, and a real escalated triage decision.
+   persona list, approver included, and a real escalated claim assessment.
 3. **The `onprem` profile with the placeholder still bound.** No identity provider is wired, so
-   no end user can be authenticated. `/v1/triage` answers 501 with the reason and the name of the
+   no end user can be authenticated. `/v1/assess` answers 501 with the reason and the name of the
    file to read; binding a verifying adapter (below) is what lifts both the 501 and the bound.
 
 Symmetrically, the guard STANDS DOWN when the binding declares `verified`: `gcp` serves
 `/healthz` and the discovery card to any peer (a fronted deployment must stay health-checkable
-and neither carries per-caller data) while `/v1/triage` answers 401 without an IAP assertion. The
+and neither carries per-caller data) while `/v1/assess` answers 401 without an IAP assertion. The
 route does the authenticating, which is the whole reason the guard may stand down.
 
 That is also why the declaration has to be EARNED rather than asserted. It was not: the verifier
@@ -127,7 +127,7 @@ credential again.
 
 | State | What happens |
 |---|---|
-| unset | No choice was recorded. The SDK-free adapters bind (the alternative is importing cloud SDKs that are not installed), but every relaxation is withdrawn and the exposure guard refuses every route to any non-loopback peer. Symptom: 401 on `/v1/triage` naming the variable, and 503 naming the `unconfigured` posture from off-box. Fix: set the variable. |
+| unset | No choice was recorded. The SDK-free adapters bind (the alternative is importing cloud SDKs that are not installed), but every relaxation is withdrawn and the exposure guard refuses every route to any non-loopback peer. Symptom: 401 on `/v1/assess` naming the variable, and 503 naming the `unconfigured` posture from off-box. Fix: set the variable. |
 | set to an empty value | Refused AT IMPORT (`ConfiguredEmptyError`). The process does not start. An emptied variable is an expressed intent that names no profile, so it never inherits the unset behaviour. Common cause: a config map or deployment template that renders an empty string. |
 | set but unknown, including `Local`, `LOCAL`, `GCP` | Refused AT IMPORT. A typo is not a synonym, and coercing the case would turn it into a silent choice. |
 
