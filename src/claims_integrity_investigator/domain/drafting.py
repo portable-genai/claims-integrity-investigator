@@ -143,6 +143,10 @@ class AssessmentDrafter:
             messages=(LlmMessage(role="user", content=user),),
             system_instruction=_SYSTEM,
             response_schema=_SCHEMA,
+            # Narration restates figures the engine already fixed; it computes nothing that is
+            # compared, so it samples freely (no temperature sent). The figures stay pinned
+            # because the engine, not the model, produces them.
+            temperature=None,
         )
         try:
             response = self._generation.generate(request)

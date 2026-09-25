@@ -288,7 +288,10 @@ class LlmRequest:
     messages: tuple[LlmMessage, ...]
     system_instruction: str = ""
     model: str | None = None
-    temperature: float = 0.0  # omitted at a call site means this value; it must not sample
+    #: Sampling for this call. ``None`` sends no temperature at all (some models reject the
+    #: parameter, so free means absent, never ``1.0``). Pin ``0.0`` at a call site whose output
+    #: is extracted, classified, scored or compared against a deterministic check.
+    temperature: float | None = None
     max_output_tokens: int = 2048
     response_schema: dict[str, object] | None = None
 

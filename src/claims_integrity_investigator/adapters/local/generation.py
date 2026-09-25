@@ -12,6 +12,8 @@ from __future__ import annotations
 import json
 import re
 
+from hex_service_kit import provenance
+
 from ...config import Settings
 from ...domain.models import LlmRequest, LlmResponse
 
@@ -19,6 +21,10 @@ _REC_RE = re.compile(r"Recommendation \(fixed\):\s*(\S+)")
 _COVER_RE = re.compile(r"claimed\s+([\d,]+\.\d{2}); indemnity\s+([\d,]+\.\d{2})")
 _FRAUD_RE = re.compile(r"Fraud score\s+(\d+\.\d+)")
 _CLAUSE_RE = re.compile(r"\[([A-Z0-9-]+)\]")
+
+#: What this narrator answers as, for the console's model pill: the name ``generator_model``
+#: reports under ``local``, so the pill before and after an answer agree.
+STUB_MODEL = "deterministic-offline-stub"
 
 
 class LocalGenerationAdapter:
@@ -28,6 +34,7 @@ class LocalGenerationAdapter:
         self._settings = settings
 
     def generate(self, request: LlmRequest) -> LlmResponse:
+        provenance.note_model(STUB_MODEL)
         content = "\n".join(message.content for message in request.messages)
         rec = _REC_RE.search(content)
         cover = _COVER_RE.search(content)
