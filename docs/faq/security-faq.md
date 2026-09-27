@@ -116,9 +116,9 @@ its dependabot ecosystem and its CI job consistent in both directions.
 
 ## What is explicitly out of scope for this repo?
 
-Prompt-injection screening and output filtering: those belong to the `agent-guardrail-gateway`,
-and this repo has not yet bound a `GuardrailPort` to it (the R1 row in `../../COMPLIANCE.md`
-says so plainly rather than claiming coverage). Governed retrieval and its ACL model are
+The screening engine itself: prompt-injection detection and output filtering are Model Armor's
+(the `agent-guardrail-gateway` concern), which this repo calls through `ports/guardrail.py` on
+both model calls rather than reimplementing (the R1 row in `../../COMPLIANCE.md`). Governed retrieval and its ACL model are
 `enterprise-knowledge-base`'s. Agent identity and entitlements are `agent-registry`'s. Model-risk promotion is `model-quality-gate`'s.
 The enterprise WORM sink and tracing backend are `agent-observability`'s. The review console, including its
 own re-redaction and its approval workflow, is `human-review-console`'s. Organised-fraud ring detection is the

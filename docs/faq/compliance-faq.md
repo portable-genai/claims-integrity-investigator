@@ -47,10 +47,11 @@ STRUCTURAL attributes only, deliberately: a trace backend has no redaction stage
 audience and no retention rule written against a regulator's requirement, so no claim id,
 claimant, file text or narrative reaches one.
 
-The runtime guardrail and DLP gateway itself is the sibling `agent-guardrail-gateway` system, and this repo has
-NOT yet bound a `GuardrailPort` to it. The R1 row in `../../COMPLIANCE.md` states that plainly
-rather than claiming coverage; treat prompt-injection screening as an open dependency, not a
-shipped control.
+Prompt-injection and output screening is bound: `ports/guardrail.py` screens the input and output
+of both model calls, extraction and narration, on a regional Model Armor template under `gcp`,
+and every refusal is audited `blocked` in the WORM trail. A refused claim file is never assessed;
+a refused narrative is replaced by the deterministic template. The R1 row in
+`../../COMPLIANCE.md` has the detail and the tests that hold it.
 
 ### Is the audit trail good enough to rely on?
 

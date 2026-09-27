@@ -120,7 +120,6 @@ that are construction-only placeholders (`claim_file.fetch`, `claims_history.his
 `extraction.extract`, `fraud_linkage.linkage`, `generation.generate`,
 `policy_corpus.retrieve`), and the API preflight
 refuses to start a `gcp` process while any of them is bound rather than letting "production
-ready" become a label. Beyond that, `../../COMPLIANCE.md` marks the `agent-guardrail-gateway` binding
-(R1), the `agent-observability` binding (R2), the `agent-registry` registration (R4), the `model-quality-gate` bundle
+ready" become a label. Beyond that, `../../COMPLIANCE.md` marks the `agent-observability` binding (R2), the `agent-registry` registration (R4), the `model-quality-gate` bundle
 registration (R5), resilience and kill switches (P-10), cost and latency control (P-11) and
 object-level tenant isolation as open. Read those rows before you plan a go-live date.

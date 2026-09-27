@@ -87,11 +87,13 @@ card describes the boundary that a real model will drop into, and what is alread
   stamp so a figure and a narrative can each be traced to what produced them. Do not remove an
   entry from `INCOMPLETE_MANAGED_OPERATIONS` until the adapter executes the real call and an
   integration test proves the response mapping.
-- **Prompt-injection screening through `agent-guardrail-gateway`** (rule R1). A claim file is adversary-supplied text:
-  an FNOL narrative or an adjuster note is exactly where an instruction aimed at the extractor
-  would be planted. Redaction is in place, screening is not, and no `GuardrailPort` is bound.
-  Add one at the model boundary, screening input and output, and fail closed to
-  deterministic-only when the screen is unavailable.
+- **Prompt-injection screening, on the live template** (rule R1). A claim file is
+  adversary-supplied text: an FNOL narrative or an adjuster note is exactly where an instruction
+  aimed at the extractor would be planted. `ports/guardrail.py` now screens both model calls in
+  both directions, and fails closed: a refused or unscreenable claim file is never assessed, and
+  a refused narrative falls back to deterministic-only. What remains is proving it against the
+  deployed Model Armor template, and sizing long claim files against the prompt-injection
+  filter's token limit, past which a screen reports `PARTIAL` and the file is refused.
 - **Budget, rate control and a kill switch** (P-10, P-11). No model call exists today, so nothing
   is metered. When one does: a per-request token budget, a per-tenant rate limit, timeouts and a
   circuit breaker on both model ports, and a switch that forces deterministic-only operation with

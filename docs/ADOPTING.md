@@ -198,10 +198,11 @@ really has:
   through `ports/fraud_linkage.py`. The organised-fraud signal arrives as raw linkage and the
   scoring happens here; ring detection itself is theirs. The default binding is a local fixture,
   so name a live export when you have one.
-- `agent-guardrail-gateway` is a mandated dependency this repo has NOT yet integrated (see the
-  R1 row in [`COMPLIANCE.md`](../COMPLIANCE.md)). Redaction is in place at every boundary, but
-  prompt-injection screening and output filtering are `agent-guardrail-gateway`'s job and belong behind a
-  `GuardrailPort`, not in a second in-repo screening engine.
+- `agent-guardrail-gateway` (rule R1): both model calls, extraction and narration, are screened in
+  both directions behind `ports/guardrail.py`, on a regional Model Armor template under `gcp`
+  (`infra/terraform/model_armor.tf`). See the R1 row in [`COMPLIANCE.md`](../COMPLIANCE.md). A
+  region that does not serve the malicious-URI filter or multi-language detection needs
+  `model_armor_full_capabilities = false`, stated and disclosed.
 
 `claims-integrity-investigator`'s responsibility ends at the recommendation. It does not pay a claim, post a reserve,
 notify a claimant, open an SIU case file or file a regulatory report: those are downstream

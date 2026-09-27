@@ -79,6 +79,7 @@ from ..config import (
     resolve_profile,
 )
 from ..domain.assessment_service import build_assessment_service
+from ..domain.errors import GuardrailBlockedError
 
 # Resolved at import, so an unknown, mis-capitalised or deliberately emptied profile is a BOOT
 # failure rather than a first-request failure (a serving process must not come up on a profile
@@ -307,6 +308,12 @@ def assess(
         # does not exist. "Exists, but not for you" confirms the id to a caller who only guessed.
         raise HTTPException(
             status_code=status.HTTP_404_NOT_FOUND, detail=f"no claim {request.claim_id!r}"
+        ) from exc
+    except GuardrailBlockedError as exc:
+        # Rule R1: the claim file was refused at extraction and is already audited BLOCKED.
+        # Never a partial assessment. 422: the request was well formed; its file was refused.
+        raise HTTPException(
+            status_code=status.HTTP_422_UNPROCESSABLE_CONTENT, detail=str(exc)
         ) from exc
     # The hand-off never fails an already-computed, already-audited assessment; the response
     # says what happened to it instead (the fleet's runtime-control contract).

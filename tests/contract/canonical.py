@@ -32,6 +32,8 @@ from claims_integrity_investigator.domain.kernel import (
     AuditEvent,
     Citation,
     Decision,
+    Direction,
+    GuardrailVerdict,
     Severity,
 )
 from claims_integrity_investigator.domain.models import (
@@ -204,6 +206,22 @@ def _generation_answered(_adapter: Any, result: Any) -> bool:
     return bool(getattr(result, "text", ""))
 
 
+#: A benign prompt, so the offline heuristic answers "allowed" rather than the blocked path.
+CANONICAL_GUARDRAIL_TEXT = "Please restate the claim's coverage figures for the reviewer."
+
+
+def _guardrail_invoke(adapter: Any) -> Any:
+    return adapter.screen(CANONICAL_GUARDRAIL_TEXT, Direction.INPUT)
+
+
+def _guardrail_answered(_adapter: Any, result: Any) -> bool:
+    return (
+        isinstance(result, GuardrailVerdict)
+        and result.allowed
+        and result.sanitized_text == CANONICAL_GUARDRAIL_TEXT
+    )
+
+
 def _tracer_invoke(adapter: Any) -> Any:
     with adapter.span("canonical.unit", action="canonical"):
         adapter.record_token_usage(TokenUsage(input_tokens=7, output_tokens=2), "canonical-model")
@@ -260,6 +278,13 @@ CANONICAL_CALLS: dict[str, PortCase] = {
         answered=_generation_answered,
         managed_refusal=(ImportError,),
         detail="draft the cited narrative",
+    ),
+    "guardrail": PortCase(
+        invoke=_guardrail_invoke,
+        answered=_guardrail_answered,
+        # The lazy `google.cloud` import is the first thing the managed adapter does.
+        managed_refusal=(ImportError,),
+        detail="screen one direction of a generation call",
     ),
     "identity": PortCase(
         invoke=_identity_invoke,

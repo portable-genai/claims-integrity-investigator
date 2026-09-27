@@ -52,6 +52,24 @@ def local_settings(**overrides: Any) -> Settings:
     return Settings(**base)
 
 
+def assessment_service_with(container: Container, **ports: Any) -> ClaimAssessmentService:
+    """The container's assessment service with some ports replaced, the rest as bound."""
+    wired: dict[str, Any] = {
+        "claim_file": container.claim_file,
+        "extraction": container.extraction,
+        "policy_corpus": container.policy_corpus,
+        "claims_history": container.claims_history,
+        "fraud_linkage": container.fraud_linkage,
+        "generation": container.generation,
+        "guardrail": container.guardrail,
+        "audit": container.audit,
+        "tracer": container.tracer,
+        "policy": container.settings.policy,
+    }
+    wired.update(ports)
+    return ClaimAssessmentService(**wired)
+
+
 def is_blocked_sdk(fullname: str, roots: Sequence[str] = BLOCKED_SDK_ROOTS) -> bool:
     """True when ``fullname`` is one of the blocked roots or lives under one."""
     return any(fullname == root or fullname.startswith(root + ".") for root in roots)
