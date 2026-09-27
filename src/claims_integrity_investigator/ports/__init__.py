@@ -20,6 +20,7 @@ from .claims_history import ClaimsHistoryPort
 from .extraction import ExtractionPort
 from .fraud_linkage import FraudLinkagePort
 from .generation import GenerationPort
+from .guardrail import GuardrailPort
 from .identity import (
     CLIENT_ASSERTED,
     END_USER_AUTH_ATTR,
@@ -45,6 +46,7 @@ PORT_PROTOCOLS: dict[str, type] = {
     "extraction": ExtractionPort,
     "fraud_linkage": FraudLinkagePort,
     "generation": GenerationPort,
+    "guardrail": GuardrailPort,
     "identity": IdentityPort,
     "policy_corpus": PolicyCorpusPort,
     "review_router": ReviewRouterPort,
@@ -69,6 +71,7 @@ __all__ = [
     "ExtractionPort",
     "FraudLinkagePort",
     "GenerationPort",
+    "GuardrailPort",
     "IdentityPort",
     "PolicyCorpusPort",
     "ReviewRouterPort",

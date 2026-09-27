@@ -75,7 +75,7 @@ cross-cutting concerns owned by sibling systems. Do not rebuild these in a fork:
 | Concern | Owned by (catalog id / repo) | `claims-integrity-investigator`'s role |
 |---|---|---|
 | Governed RAG over the insurer's policy wordings, with ACLs and citations | `enterprise-knowledge-base` | a HARD dependency: retrieval goes through the Governed-RAG service (`ports/policy_corpus.py`), which REFUSES when unconfigured rather than falling back to an ungoverned search |
-| Runtime guardrail: prompt-injection and jailbreak defence, output screening | `agent-guardrail-gateway` | a mandated dependency this repo has NOT yet bound (the R1 row in `COMPLIANCE.md` says so). In-repo redaction is in place; screening belongs behind a `GuardrailPort` |
+| Runtime guardrail: prompt-injection and jailbreak defence, output screening | `agent-guardrail-gateway` | screens the input and output of both model calls behind `ports/guardrail.py` (Model Armor under `gcp`); a refused claim file is never assessed and a refused narrative falls back to the deterministic template, each audited `blocked` (the R1 row in `COMPLIANCE.md`) |
 | Agent registry, versioning, identity, entitlements | `agent-registry` | publishes its A2A card at `/.well-known/agent-card.json`, built from the same tool table the runtime binds |
 | AI-quality / eval / model-risk promotion gate | `model-quality-gate` | owns promotion under the bundle id `claims-integrity-investigator`; the offline gate mirrors its thresholds |
 | Observability, tracing, immutable WORM audit, FinOps | `agent-observability` | writes audit events and exports structural-only spans to it; the in-repo hash chain is the offline stand-in |

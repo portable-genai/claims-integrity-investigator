@@ -24,6 +24,7 @@ from pii_kit import redact
 from ..adapters.controls import RecordingReviewRouter
 from ..config import Container, Settings, build_container
 from ..domain.assessment_service import build_assessment_service
+from ..domain.errors import GuardrailBlockedError
 from ..domain.pii import PII_PATTERNS
 
 if TYPE_CHECKING:  # pragma: no cover - typing only, never imported at runtime
@@ -83,11 +84,16 @@ def assess_claim(
       goes into a model's context), plus ``review_ref``: where the escalation WENT, and
       ``review_routing``: routed, failed, off or not_required, so a caller can confirm the
       escalation was routed and not merely flagged. The reference is empty exactly when
-      ``review_routing`` is not ``routed``.
+      ``review_routing`` is not ``routed``. When the guardrail refuses the claim file at
+      extraction (rule R1), the refusal is already audited and this returns
+      ``{"blocked": True, "reason": <str>}`` instead: never a partial assessment.
     """
     container = _container(settings)
     scope = tenant or container.settings.tenant
-    result = build_assessment_service(container).assess(claim_id, actor=actor, tenant=scope)
+    try:
+        result = build_assessment_service(container).assess(claim_id, actor=actor, tenant=scope)
+    except GuardrailBlockedError as exc:
+        return {"blocked": True, "reason": str(exc)}
     routing = RecordingReviewRouter(container.review_router)
     review_ref = routing.route(result, maker=actor, tenant=tenant)
     payload = _redacted(to_jsonable(result))

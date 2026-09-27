@@ -7,6 +7,20 @@ complaints-review service: fetch, REDACT before any model call, extract, retriev
 run the coverage and red-flag engines, recommend, draft, then redact again before the audit
 write. Every assessment is consequential, so ``requires_human_review`` is always True and the
 surfaces route it to human-review-console (rule R8).
+
+Rule R1: the guardrail screens both directions of BOTH model calls an assessment makes.
+
+- Extraction (Document AI plus Gemini multimodal under ``gcp``) reads the claim file, the most
+  caller-controlled text in the system. The redacted file is screened INPUT, whole, as the
+  extractor reads it (the subject and every document, so an injection split across two
+  documents is seen), and the extracted evidence's free text is screened OUTPUT before any
+  engine reasons over it. Extraction is not optional, so a refusal, or a guardrail that could
+  not decide, is audited ``Decision.BLOCKED`` with no severity (nothing was scored) and raises
+  :class:`~.errors.GuardrailBlockedError` (or the guardrail's own error): never a partial
+  assessment.
+- Narration (``domain/drafting.py``) is optional by design: a refused narrative falls back to
+  the deterministic template, and is still audited ``Decision.BLOCKED`` here, with the severity
+  that was scored, before the assessment's own record.
 """
 
 from __future__ import annotations
@@ -17,10 +31,12 @@ from typing import Any
 from pii_kit import redact
 
 from ..ports.audit import AuditSinkPort
+from ..ports.guardrail import GuardrailPort
 from ..ports.observability import ObservabilityTracerPort
 from .coverage_engine import CoverageEngine
 from .drafting import AssessmentDrafter
-from .kernel import AuditEvent, Citation, Decision, Severity, utcnow
+from .errors import GuardrailBlockedError
+from .kernel import AuditEvent, Citation, Decision, Direction, Severity, utcnow
 from .models import (
     ClaimAssessment,
     ClaimsHistory,
@@ -81,6 +97,7 @@ class ClaimAssessmentService:
         claims_history: Any,
         fraud_linkage: Any,
         generation: Any,
+        guardrail: GuardrailPort,
         audit: AuditSinkPort,
         tracer: ObservabilityTracerPort,
         policy: AssessmentPolicy,
@@ -93,9 +110,10 @@ class ClaimAssessmentService:
         self._audit = audit
         self._tracer = tracer
         self._policy = policy
+        self._guardrail = guardrail
         self._coverage_engine = CoverageEngine()
         self._red_flag_engine = RedFlagEngine(policy=policy)
-        self._drafter = AssessmentDrafter(generation)
+        self._drafter = AssessmentDrafter(generation, guardrail)
 
     def assess(self, claim_id: str, *, actor: str, tenant: str) -> ClaimAssessment:
         """Assess ``tenant``'s claim ``claim_id`` end to end, inside one span.
@@ -120,7 +138,16 @@ class ClaimAssessmentService:
             # ORDER is the same on every profile so the guarantee does not depend on which
             # adapter is bound.
             redacted_raw = _redact_raw(raw)
+            # Rule R1: the extractor is a model call over caller-controlled text, so the file it
+            # reads is screened INPUT first, and what it extracted is screened OUTPUT before any
+            # engine, prompt or record uses it.
+            self._screen_extraction(
+                _claim_file_text(redacted_raw), Direction.INPUT, claim_id=claim_id, actor=actor
+            )
             extracted = self._extraction.extract(redacted_raw)
+            self._screen_extraction(
+                _extracted_text(extracted), Direction.OUTPUT, claim_id=claim_id, actor=actor
+            )
 
             passages = self._retrieve_wording(extracted)
             coverage = self._coverage_engine.assess(extracted, passages)
@@ -136,9 +163,18 @@ class ClaimAssessmentService:
 
             recommendation = recommend(coverage, red_flags, self._policy)
             severity = _SEVERITY_BY_RECOMMENDATION[recommendation]
-            narrative, wording_cites = self._drafter.draft(
-                recommendation, coverage, red_flags, passages
-            )
+            draft = self._drafter.draft(recommendation, coverage, red_flags, passages)
+            narrative, wording_cites = draft.narrative, draft.citations
+            if draft.blocked_direction is not None:
+                # Narration is optional, so the assessment goes on with the deterministic
+                # template; the refusal is still a security event the WORM trail must hold.
+                self._audit_blocked(
+                    actor,
+                    f"{claim_id}: narrative blocked",
+                    draft.blocked_direction,
+                    draft.blocked_reason,
+                    severity=severity,
+                )
 
             summary = (
                 f"{claim_id}: {recommendation.value}; indemnity "
@@ -164,6 +200,63 @@ class ClaimAssessmentService:
             )
             self._record(assessment, actor=actor)
             return assessment
+
+    def _screen_extraction(
+        self, text: str, direction: Direction, *, claim_id: str, actor: str
+    ) -> None:
+        """Screen one leg of the extraction call; refuse the assessment if it is not allowed.
+
+        Allowed means allowed with the text UNCHANGED. The screen sees the claim file (or the
+        extracted evidence) as one joined text, and a rewrite of that text cannot be mapped back
+        onto the documents or the structured fields it came from, so a screen that rewrote it
+        refuses too rather than letting the unscreened original through. A block, and a
+        guardrail that raised instead of deciding, both fail closed after an audited BLOCKED
+        record with no severity, because nothing has been scored.
+        """
+        what = f"{claim_id}: extraction blocked"
+        try:
+            verdict = self._guardrail.screen(text, direction)
+        except Exception as exc:
+            reason = f"guardrail unavailable ({type(exc).__name__})"
+            try:
+                self._audit_blocked(actor, what, direction, reason, severity=None)
+            except Exception as audit_exc:
+                exc.add_note(f"the BLOCKED audit record could not be written: {audit_exc!r}")
+            raise
+        if not verdict.allowed or verdict.sanitized_text is None:
+            reason = verdict.reason or f"extraction {direction.value} blocked by guardrail"
+        elif verdict.sanitized_text != text:
+            reason = "the guardrail rewrote the claim file, which cannot be mapped back onto it"
+        else:
+            return
+        self._audit_blocked(actor, what, direction, reason, severity=None)
+        raise GuardrailBlockedError(reason)
+
+    def _audit_blocked(
+        self,
+        actor: str,
+        what: str,
+        direction: Direction,
+        reason: str,
+        *,
+        severity: Severity | None,
+    ) -> None:
+        """Audit a guardrail refusal (rule R1/R2). Never carries the refused text.
+
+        Only that a refusal happened, to which call, in which direction and why. ``severity`` is
+        the band already scored, or ``None`` when the refusal came before any scoring.
+        """
+        self._audit.record(
+            AuditEvent(
+                action="assess_claim",
+                actor=actor,
+                decision=Decision.BLOCKED,
+                severity=severity,
+                redacted_summary=redact(f"{what} ({direction.value}): {reason}", PII_PATTERNS),
+                citations=(),
+                timestamp=utcnow(),
+            )
+        )
 
     def _retrieve_wording(self, extracted: ExtractedClaim) -> tuple[RetrievedPassage, ...]:
         categories = " ".join(sorted({line.category for line in extracted.lines}))
@@ -210,10 +303,27 @@ def build_assessment_service(container: Any) -> ClaimAssessmentService:
         claims_history=container.claims_history,
         fraud_linkage=container.fraud_linkage,
         generation=container.generation,
+        guardrail=container.guardrail,
         audit=container.audit,
         tracer=container.tracer,
         policy=container.settings.policy,
     )
+
+
+def _claim_file_text(raw: RawClaimFile) -> str:
+    """The claim file as the extractor reads it, joined: the subject, then every document."""
+    return "\n\n".join([raw.subject, *(doc.text for doc in raw.documents)])
+
+
+def _extracted_text(extracted: ExtractedClaim) -> str:
+    """Every free-text field extraction produced, joined, for the OUTPUT screen."""
+    parts = [extracted.subject, extracted.policy_ref]
+    parts.extend(
+        f"{line.category} {line.description} {line.invoice_no}" for line in extracted.lines
+    )
+    parts.extend(f"{item.category} {item.exclusion_clause}" for item in extracted.schedule)
+    parts.append(extracted.adjuster_notes)
+    return "\n".join(parts)
 
 
 def _redact_raw(raw: RawClaimFile) -> RawClaimFile:

@@ -46,6 +46,19 @@ iap_audience: ${CLAIMSINTEG_IAP_AUDIENCE:-}
 # deliberately distinct from this service's own inbound CLAIMSINTEG_S2S_TOKEN.
 review_url: ${HUMAN_REVIEW_URL:-}
 
+# Rule R1: the Model Armor template the `gcp` guardrail adapter screens the input and output of
+# every model call (extraction and narration) through, and the regional host it calls (never the global
+# endpoint, P-05). `template_id` matches the template `infra/terraform/model_armor.tf` creates,
+# so a zero-edit run names a template its own Terraform provisions. Guardrail on
+# (CLAIMSINTEG_GUARDRAIL, unset means on) under the managed profile REFUSES TO BOOT when
+# template_id is empty and the bound adapter is ModelArmorGuardrailAdapter;
+# CLAIMSINTEG_GUARDRAIL=off states the guardrail off.
+model_armor:
+  template_id: ${CLAIMSINTEG_MODEL_ARMOR_TEMPLATE:-claims-integrity-investigator-guardrail}
+  host: ${CLAIMSINTEG_MODEL_ARMOR_HOST:-modelarmor.asia-southeast1.rep.googleapis.com}
+  # The deadline on every sanitize call. A timeout fails CLOSED (audited, then refused).
+  timeout_seconds: 10.0
+
 # The Governed-RAG service the managed policy-corpus adapter retrieves policy wording from.
 # enterprise-knowledge-base is a HARD row dependency: an unset/empty endpoint makes the governed-retrieval adapter
 # REFUSE rather than fall back to an ungoverned file search. Empty is correct offline (the local
@@ -112,6 +125,12 @@ adapters:
     local: claims_integrity_investigator.adapters.local.generation:LocalGenerationAdapter
     gcp: claims_integrity_investigator.adapters.gcp.generation:CloudGenerationAdapter
     onprem: claims_integrity_investigator.adapters.onprem.generation:OnPremGenerationAdapter
+  # Rule R1: screens every model call's input (before) and output (after). local is a
+  # deterministic heuristic stand-in; there is no offline emulator for Model Armor.
+  guardrail:
+    local: claims_integrity_investigator.adapters.local.guardrail:LocalHeuristicGuardrailAdapter
+    gcp: claims_integrity_investigator.adapters.gcp.guardrail:ModelArmorGuardrailAdapter
+    onprem: claims_integrity_investigator.adapters.onprem.guardrail:OnPremGuardrailAdapter
   identity:
     local: claims_integrity_investigator.adapters.local.identity:LocalIdentityAdapter
     gcp: claims_integrity_investigator.adapters.gcp.identity:IapIdentityAdapter

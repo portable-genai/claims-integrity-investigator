@@ -429,6 +429,7 @@ _REBOUND_SETTINGS = "\n".join(
         *_local_rebound("extraction", "LocalExtractionAdapter", "OnPremExtractionAdapter"),
         *_local_rebound("fraud_linkage", "LocalFraudLinkageAdapter", "OnPremFraudLinkageAdapter"),
         *_local_rebound("generation", "LocalGenerationAdapter", "OnPremGenerationAdapter"),
+        *_local_rebound("guardrail", "LocalHeuristicGuardrailAdapter", "OnPremGuardrailAdapter"),
         "  identity:",
         f"    local: {_PKG}.adapters.local.identity:LocalIdentityAdapter",
         f"    gcp: {_PKG}.adapters.gcp.identity:IapIdentityAdapter",

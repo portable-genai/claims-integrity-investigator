@@ -15,6 +15,7 @@ from hex_service_kit.logging import configure_logging
 from ..adapters.controls import RecordingReviewRouter
 from ..config import build_container
 from ..domain.assessment_service import build_assessment_service
+from ..domain.errors import GuardrailBlockedError
 from ..domain.models import money
 
 
@@ -39,7 +40,12 @@ def main(argv: list[str] | None = None) -> int:
     if args.command == "assess":
         service = build_assessment_service(container)
         tenant = args.tenant or container.settings.tenant
-        result = service.assess(args.claim_id, actor=args.actor, tenant=tenant)
+        try:
+            result = service.assess(args.claim_id, actor=args.actor, tenant=tenant)
+        except GuardrailBlockedError as exc:
+            # Rule R1: already audited BLOCKED inside the service. Never a partial assessment.
+            print(f"blocked by guardrail: {exc}", file=sys.stderr)
+            return 1
         print(f"{result.claim_id} ({result.subject}) policy {result.policy_ref}")
         print(f"  recommendation: {result.recommendation.value} [{result.severity.value}]")
         print("  coverage:")

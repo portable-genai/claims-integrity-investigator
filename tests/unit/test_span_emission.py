@@ -60,6 +60,7 @@ def _assess(claim_id: str) -> tuple[_RecordingTracer, ClaimAssessment]:
         claims_history=container.claims_history,
         fraud_linkage=container.fraud_linkage,
         generation=container.generation,
+        guardrail=container.guardrail,
         audit=container.audit,
         tracer=tracer,
         policy=_SETTINGS.policy,
